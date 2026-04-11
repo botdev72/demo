@@ -1,0 +1,25 @@
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;line-height:1.6}
+.container{max-width:1100px;margin:auto;padding:0 20px}
+.narrow{max-width:700px}
+.nav{position:fixed;width:100%;background:rgba(15,23,42,.8);backdrop-filter:blur(10px);z-index:100}
+.nav-inner{display:flex;justify-content:space-between;align-items:center;padding:15px 0}
+.nav a{color:#cbd5f5;margin:0 10px;text-decoration:none}
+.brand{font-weight:800}
+.btn{padding:10px 16px;border-radius:8px;text-decoration:none}
+.primary{background:#6366f1;color:white}
+.ghost{border:1px solid #6366f1;color:#6366f1}
+.hero{padding:120px 0}
+.hero-inner{display:flex;gap:40px;align-items:center}
+.hero h1{font-size:40px}
+.subtitle{color:#818cf8}
+.card{background:#1e293b;padding:20px;border-radius:12px}
+.section{padding:80px 0}
+.alt{background:#020617}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.skill-card,.project-card{background:#1e293b;padding:20px;border-radius:12px}
+.timeline-item{margin-bottom:30px}
+.footer{text-align:center;padding:20px 0;background:#020617}
+.reveal{opacity:0;transform:translateY(20px);transition:.6s}
+.reveal.active{opacity:1;transform:none}
