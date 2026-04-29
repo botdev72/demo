@@ -19,6 +19,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
     
     <style>
+        /* CSS VARIABLES UNTUK THEME */
         :root {
             --bg-main: #0b0e11; --bg-card: #1e2329; --bg-hover: #2b3139;
             --text-main: #eaecef; --text-sub: #848e9c;
@@ -45,7 +46,7 @@
         .splash-logo { width: 80px; height: 80px; background: var(--accent-yellow); border-radius: 20px; display: flex; justify-content: center; align-items: center; font-size: 40px; color: #000; margin-bottom: 20px; animation: pulse 1.5s infinite;}
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         
-        /* PIN KEYPAD (LOCKSCREEN) */
+        /* PIN KEYPAD */
         .pin-dots { display: flex; gap: 16px; margin: 24px 0 40px 0; }
         .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--text-sub); }
         .pin-dot.filled { background: var(--accent-yellow); border-color: var(--accent-yellow); }
@@ -84,7 +85,7 @@
         .coin-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background-color: var(--bg-card); color: var(--text-main); overflow: hidden;}
         .coin-icon img { width: 100%; height: 100%; object-fit: cover; }
         .coin-name { font-weight: 600; font-size: 15px; }
-        .coin-symbol { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+        .coin-symbol { font-size: 12px; color: var(--text-sub); margin-top: 2px; text-transform: uppercase;}
         .price-text { font-weight: 600; font-size: 15px; text-align: right; }
         
         .profile-menu { margin-top: 24px; }
@@ -98,9 +99,8 @@
         
         .input-group { background-color: var(--bg-main); border: 1px solid var(--border-color); border-radius: 12px; display: flex; align-items: center; padding: 0 16px; margin-bottom: 16px; }
         
-        /* KUNCI INPUT AGAR KEYBOARD BAWAAN TIDAK MUNCUL */
         .modal-input { width: 100%; padding: 16px 0; background: transparent; border: none; color: var(--text-main); font-size: 16px; font-weight: 600; outline: none; }
-        .modal-input.custom-kb { cursor: pointer; caret-color: transparent; } /* Sembunyikan garis kedip */
+        .modal-input.custom-kb { cursor: pointer; caret-color: transparent; }
 
         .select-custom { appearance: none; width: 100%; background: transparent; color: var(--text-main); border: none; padding: 16px 0; font-size: 15px; font-weight: 500; outline: none;}
         .select-custom option { background: var(--bg-card); color: var(--text-main); }
@@ -130,7 +130,7 @@
 
         #avatar-upload { display: none; }
 
-        /* --- CUSTOM IN-APP NUMPAD --- */
+        /* CUSTOM IN-APP NUMPAD */
         #custom-numpad { position: fixed; bottom: -100%; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--bg-card); z-index: 1000; padding: 20px 20px 30px 20px; box-sizing: border-box; transition: bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-top: 1px solid var(--border-color); border-radius: 24px 24px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.5);}
         #custom-numpad.open { bottom: 0; }
         .numpad-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; color:var(--text-sub); font-weight:600; font-size:14px;}
@@ -152,18 +152,10 @@
                 <span class="material-symbols-outlined" onclick="closeNumpad()" style="cursor:pointer; color:var(--accent-yellow);">keyboard_hide</span>
             </div>
             <div class="numpad-grid">
-                <div class="num-key" onclick="typeNumpad('1')">1</div>
-                <div class="num-key" onclick="typeNumpad('2')">2</div>
-                <div class="num-key" onclick="typeNumpad('3')">3</div>
-                <div class="num-key" onclick="typeNumpad('4')">4</div>
-                <div class="num-key" onclick="typeNumpad('5')">5</div>
-                <div class="num-key" onclick="typeNumpad('6')">6</div>
-                <div class="num-key" onclick="typeNumpad('7')">7</div>
-                <div class="num-key" onclick="typeNumpad('8')">8</div>
-                <div class="num-key" onclick="typeNumpad('9')">9</div>
-                <div class="num-key" onclick="typeNumpad('.')">.</div>
-                <div class="num-key" onclick="typeNumpad('0')">0</div>
-                <div class="num-key" onclick="typeNumpad('backspace')"><span class="material-symbols-outlined">backspace</span></div>
+                <div class="num-key" onclick="typeNumpad('1')">1</div><div class="num-key" onclick="typeNumpad('2')">2</div><div class="num-key" onclick="typeNumpad('3')">3</div>
+                <div class="num-key" onclick="typeNumpad('4')">4</div><div class="num-key" onclick="typeNumpad('5')">5</div><div class="num-key" onclick="typeNumpad('6')">6</div>
+                <div class="num-key" onclick="typeNumpad('7')">7</div><div class="num-key" onclick="typeNumpad('8')">8</div><div class="num-key" onclick="typeNumpad('9')">9</div>
+                <div class="num-key" onclick="typeNumpad('.')">.</div><div class="num-key" onclick="typeNumpad('0')">0</div><div class="num-key" onclick="typeNumpad('backspace')"><span class="material-symbols-outlined">backspace</span></div>
             </div>
             <button class="btn-confirm" style="margin-top:16px;" onclick="closeNumpad()">Done</button>
         </div>
@@ -249,6 +241,11 @@
                 </div>
 
                 <div class="section-title">All Markets</div>
+                <div class="input-group" style="background: var(--bg-card); margin-bottom: 16px;">
+                    <span class="material-symbols-outlined" style="color:var(--text-sub);">search</span>
+                    <input type="text" class="modal-input" id="searchInput" placeholder="Search 50+ coins..." style="font-size: 14px; padding: 12px;" onkeyup="cariKoin()">
+                </div>
+
                 <div id="full-market-list"></div>
             </div>
 
@@ -322,14 +319,14 @@
         function openNumpad(inputId) {
             activeInputId = inputId;
             document.getElementById('custom-numpad').classList.add('open');
-            // Sedikit highlight pada input yang aktif
             document.getElementById(inputId).parentElement.style.borderColor = "var(--accent-yellow)";
         }
 
         function closeNumpad() {
             document.getElementById('custom-numpad').classList.remove('open');
             if(activeInputId) {
-                document.getElementById(activeInputId).parentElement.style.borderColor = "var(--border-color)";
+                let el = document.getElementById(activeInputId);
+                if(el) el.parentElement.style.borderColor = "var(--border-color)";
                 activeInputId = null;
             }
         }
@@ -341,7 +338,6 @@
             if(val === 'backspace') {
                 el.value = el.value.slice(0, -1);
             } else {
-                // Cegah pengetikan titik (.) lebih dari satu kali
                 if(val === '.' && el.value.includes('.')) return; 
                 el.value += val;
             }
@@ -354,14 +350,7 @@
         let tipeAksi = ""; let riwayatTx = []; 
         let appTheme = 'dark'; let savedPin = null; let enteredPin = "";
         let stakingInterval = null;
-
-        const daftarKoin = [
-            { id: 'bitcoin', nama: 'Bitcoin', simbol: 'BTC', img: 'bitcoin-btc-logo' },
-            { id: 'ethereum', nama: 'Ethereum', simbol: 'ETH', img: 'ethereum-eth-logo' },
-            { id: 'solana', nama: 'Solana', simbol: 'SOL', img: 'solana-sol-logo' },
-            { id: 'binancecoin', nama: 'BNB', simbol: 'BNB', img: 'bnb-bnb-logo' },
-            { id: 'ripple', nama: 'Ripple', simbol: 'XRP', img: 'xrp-xrp-logo' }
-        ];
+        let globalMarketData = []; // Simpan 50 koin di memori
 
         // --- UTILS ---
         function formatUang(usdAmount) {
@@ -381,7 +370,7 @@
             document.getElementById(id).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(btn) btn.classList.add('active');
-            closeNumpad(); // Tutup numpad kalau user pindah halaman
+            closeNumpad(); 
         }
 
         // --- INIT & LOCKSCREEN ---
@@ -510,43 +499,90 @@
             renderRiwayat();
         }
 
+        // --- FETCH TOP 50 COINS COINGECKO ---
         async function ambilDataPasar() {
             try {
-                let ids = daftarKoin.map(k => k.id).join(',');
-                const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+                // Mengambil 50 koin terbesar berdasarkan market cap
+                const res = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false`);
                 if (!res.ok) throw new Error("API Limit");
                 const data = await res.json();
                 renderDataPasar(data);
             } catch (e) { 
-                const dummy = { "bitcoin": { usd: 69200.50, usd_24h_change: 2.45 }, "ethereum": { usd: 3450.10, usd_24h_change: -1.2 }, "solana": { usd: 145.20, usd_24h_change: 5.6 }, "binancecoin": { usd: 590.00, usd_24h_change: 1.1 }, "ripple": { usd: 0.58, usd_24h_change: -0.5 } };
-                renderDataPasar(dummy);
+                console.log("Loading dari API gagal, beralih ke data dummy.");
+                renderDataPasar(generateDummyData());
             }
         }
 
-        function renderDataPasar(data) {
-            if(data.bitcoin) livePrices.bitcoin = data.bitcoin.usd;
-            if(data.ethereum) livePrices.ethereum = data.ethereum.usd;
-            if(data.solana) livePrices.solana = data.solana.usd;
-            updateSemuaTampilan(); 
-            
-            let htmlMini = ""; let htmlFull = "";
-            daftarKoin.forEach((koin, index) => {
-                if(data[koin.id]) {
-                    let hargaVal = currentCurrency === 'IDR' ? data[koin.id].usd * rateIDR : data[koin.id].usd;
-                    let formatHarga = currentCurrency === 'IDR' ? "Rp " + hargaVal.toLocaleString('id-ID',{maximumFractionDigits:0}) : "$" + (hargaVal < 1 ? hargaVal.toFixed(4) : hargaVal.toLocaleString('en-US', {minimumFractionDigits:2}));
-                    let persen = data[koin.id].usd_24h_change; let warna = persen >= 0 ? 'var(--green-up)' : 'var(--red-down)';
-                    
-                    let barisHtml = `
-                    <div class="list-item">
-                        <div class="item-left"><div class="coin-icon"><img src="https://cryptologos.cc/logos/${koin.img}.svg?v=025"></div><div><div class="coin-name">${koin.simbol}</div><div class="coin-symbol">${koin.nama}</div></div></div>
-                        <div class="item-right"><div class="price-text">${formatHarga}</div><div style="font-size:12px; color:${warna}; font-weight:600;">${persen>0?'+':''}${persen.toFixed(2)}%</div></div>
-                    </div>`;
-                    htmlFull += barisHtml; if(index < 4) htmlMini += barisHtml; 
-                }
-            });
-            document.getElementById('mini-market-list').innerHTML = htmlMini; document.getElementById('full-market-list').innerHTML = htmlFull;
+        // Fungsi Dummy untuk men-generate 50 koin pura-pura jika API mati
+        function generateDummyData() {
+            const topCoins = [
+                {id:'bitcoin', symbol:'btc', name:'Bitcoin', current_price: 69200, price_change_percentage_24h: 2.45, image: 'https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=025'},
+                {id:'ethereum', symbol:'eth', name:'Ethereum', current_price: 3450, price_change_percentage_24h: -1.2, image: 'https://cryptologos.cc/logos/ethereum-eth-logo.svg?v=025'},
+                {id:'tether', symbol:'usdt', name:'Tether', current_price: 1, price_change_percentage_24h: 0.01, image: 'https://cryptologos.cc/logos/tether-usdt-logo.svg?v=025'},
+                {id:'binancecoin', symbol:'bnb', name:'BNB', current_price: 590, price_change_percentage_24h: 1.1, image: 'https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=025'},
+                {id:'solana', symbol:'sol', name:'Solana', current_price: 145, price_change_percentage_24h: 5.6, image: 'https://cryptologos.cc/logos/solana-sol-logo.svg?v=025'}
+            ];
+            for(let i=6; i<=50; i++) {
+                topCoins.push({
+                    id: `coin-${i}`, symbol: `C${i}`, name: `Altcoin Project ${i}`,
+                    current_price: Math.random() * 50, price_change_percentage_24h: (Math.random() * 15) - 7.5,
+                    image: 'https://cryptologos.cc/logos/polkadot-new-dot-logo.svg?v=025' // Generic image for dummy
+                });
+            }
+            return topCoins;
         }
 
+        function renderDataPasar(data) {
+            globalMarketData = data; // Simpan untuk fungsi pencarian (Search)
+            
+            // Perbarui harga dompet utama
+            let btcObj = data.find(c => c.id === 'bitcoin'); if(btcObj) livePrices.bitcoin = btcObj.current_price;
+            let ethObj = data.find(c => c.id === 'ethereum'); if(ethObj) livePrices.ethereum = ethObj.current_price;
+            let solObj = data.find(c => c.id === 'solana'); if(solObj) livePrices.solana = solObj.current_price;
+            
+            updateSemuaTampilan(); 
+            renderMarketLists(""); // Render daftar tanpa filter
+        }
+
+        // FUNGSI RENDER & SEARCH 50 KOIN
+        function renderMarketLists(searchTerm) {
+            let htmlMini = ""; let htmlFull = "";
+            
+            let filteredData = globalMarketData.filter(koin => 
+                koin.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                koin.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            if(filteredData.length === 0) {
+                htmlFull = `<div style="text-align:center; padding:20px; color:var(--text-sub);">No coins found.</div>`;
+            }
+
+            filteredData.forEach((koin, index) => {
+                let hargaVal = currentCurrency === 'IDR' ? koin.current_price * rateIDR : koin.current_price;
+                let formatHarga = currentCurrency === 'IDR' ? "Rp " + hargaVal.toLocaleString('id-ID',{maximumFractionDigits:0}) : "$" + (hargaVal < 1 ? hargaVal.toFixed(4) : hargaVal.toLocaleString('en-US', {minimumFractionDigits:2}));
+                let persen = koin.price_change_percentage_24h || 0; 
+                let warna = persen >= 0 ? 'var(--green-up)' : 'var(--red-down)';
+                
+                let barisHtml = `
+                <div class="list-item">
+                    <div class="item-left"><div class="coin-icon"><img src="${koin.image}" alt="${koin.symbol}"></div><div><div class="coin-name">${koin.symbol.toUpperCase()}</div><div class="coin-symbol">${koin.name}</div></div></div>
+                    <div class="item-right"><div class="price-text">${formatHarga}</div><div style="font-size:12px; color:${warna}; font-weight:600;">${persen>0?'+':''}${persen.toFixed(2)}%</div></div>
+                </div>`;
+                
+                htmlFull += barisHtml; 
+                if(searchTerm === "" && index < 5) htmlMini += barisHtml; // Home hanya memuat 5 teratas
+            });
+
+            if (searchTerm === "") document.getElementById('mini-market-list').innerHTML = htmlMini; 
+            document.getElementById('full-market-list').innerHTML = htmlFull;
+        }
+
+        function cariKoin() {
+            let keyword = document.getElementById('searchInput').value;
+            renderMarketLists(keyword);
+        }
+
+        // --- ORDER BOOK ANIMATION ---
         function renderOrderBook() {
             let asks = ''; let bids = '';
             for(let i=0; i<6; i++) {
@@ -559,6 +595,7 @@
             document.getElementById('ob-asks').innerHTML = asks; document.getElementById('ob-bids').innerHTML = bids;
         }
 
+        // --- QUEUE & HISTORY ---
         function renderRiwayat() {
             let container = document.getElementById('riwayat-container');
             if(riwayatTx.length === 0) { container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-sub); font-size:14px;">No recent transactions.</div>`; return; }
@@ -603,7 +640,7 @@
 
         // --- MODALS DEPOSIT & WITHDRAW ---
         function bukaModalBody(htmlKonten) { 
-            closeNumpad(); // Tutup numpad lama jika masih nyangkut
+            closeNumpad(); 
             document.getElementById('modalContentDynamic').innerHTML = htmlKonten; 
             document.getElementById('actionModal').style.display = 'flex'; 
         }
@@ -617,7 +654,7 @@
                 <div class="modal-title">Deposit</div>
                 <div class="modal-subtitle">Add funds to your account</div>
                 <div class="input-group">
-                    <select class="select-custom" id="depoMethod">
+                    <select class="select-custom" id="depoMethod" autocomplete="nope" data-lpignore="true">
                         <option value="Bank Transfer">Bank Transfer / VA</option><option value="Credit Card">Credit Card</option><option value="PayPal">PayPal</option>
                     </select>
                 </div>
@@ -643,9 +680,8 @@
             bukaModalBody(`
                 <div class="modal-title">Withdraw Fiat</div>
                 <div class="modal-subtitle">Avail: ${formatUang(wallets.fiat)}</div>
-                <div class="input-group"><select class="select-custom" id="wdMethodFiat"><option value="Bank Account">To Bank Account</option><option value="PayPal">To PayPal</option></select></div>
-                <div class="input-group"><input type="text" class="modal-input" placeholder="Dest. Account/Name (Optional)"></div>
-                
+                <div class="input-group"><select class="select-custom" id="wdMethodFiat" autocomplete="nope" data-lpignore="true"><option value="Bank Account">To Bank Account</option><option value="PayPal">To PayPal</option></select></div>
+                <div class="input-group"><input type="text" autocomplete="nope" autocorrect="off" spellcheck="false" autocapitalize="none" data-lpignore="true" data-form-type="other" class="modal-input" placeholder="Enter Dest. Account..."></div>
                 <div class="input-group">
                     <input type="text" class="modal-input custom-kb" id="wdAmtFiat" placeholder="Tap to enter amount..." readonly onclick="openNumpad('wdAmtFiat')">
                     <div style="color:var(--text-sub); font-weight:600;">${currentCurrency}</div>
@@ -669,7 +705,7 @@
             bukaModalBody(`
                 <div class="modal-title">Convert Crypto</div>
                 <div class="modal-subtitle">Direct conversion (Zero Fee)</div>
-                <div class="input-group"><select class="select-custom" id="convDirection"><option value="buy">Fiat (${currentCurrency}) ➔ BTC</option><option value="sell">BTC ➔ Fiat (${currentCurrency})</option></select></div>
+                <div class="input-group"><select class="select-custom" id="convDirection" autocomplete="nope" data-lpignore="true"><option value="buy">Fiat (${currentCurrency}) ➔ BTC</option><option value="sell">BTC ➔ Fiat (${currentCurrency})</option></select></div>
                 
                 <div class="input-group">
                     <input type="text" class="modal-input custom-kb" id="convAmt" placeholder="Tap to enter amount..." readonly onclick="openNumpad('convAmt')">
@@ -700,10 +736,8 @@
 
         function bukaModalProfil(tipe) {
             if(tipe === 'Currency') {
-                bukaModalBody(`<div class="modal-title">Currency Settings</div><div class="input-group"><select class="select-custom" id="selCurr"><option value="USD" ${currentCurrency==='USD'?'selected':''}>US Dollar (USD)</option><option value="IDR" ${currentCurrency==='IDR'?'selected':''}>Indonesian Rupiah (IDR)</option></select></div><button class="btn-confirm" onclick="simpanCurrency()">Save</button><button class="btn-close" onclick="tutupModal()">Cancel</button>`);
+                bukaModalBody(`<div class="modal-title">Currency Settings</div><div class="input-group"><select class="select-custom" id="selCurr" autocomplete="nope" data-lpignore="true"><option value="USD" ${currentCurrency==='USD'?'selected':''}>US Dollar (USD)</option><option value="IDR" ${currentCurrency==='IDR'?'selected':''}>Indonesian Rupiah (IDR)</option></select></div><button class="btn-confirm" onclick="simpanCurrency()">Save</button><button class="btn-close" onclick="tutupModal()">Cancel</button>`);
             } else if (tipe === 'Passcode') {
-                // Untuk Passcode, native keyboard numpad bisa diterima, tapi kita arahkan jadi readonly jika mau full custom. 
-                // Di sini saya ubah ke custom numpad juga agar konsisten
                 bukaModalBody(`
                     <div class="modal-title">Set App PIN</div>
                     <div class="modal-subtitle">Setup 6-digit lock screen PIN.</div>
