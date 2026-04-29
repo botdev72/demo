@@ -35,18 +35,10 @@
 
         /* ANTI-BLOK TEKS (NO TEXT SELECTION) GLOBAL */
         * {
-            -webkit-user-select: none; /* Safari */
-            -ms-user-select: none; /* IE 10 and IE 11 */
-            user-select: none; /* Standard syntax */
-            -webkit-touch-callout: none; /* Mencegah menu pop-up saat long-press di iOS */
+            -webkit-user-select: none; -ms-user-select: none; user-select: none;
+            -webkit-touch-callout: none;
         }
-
-        /* KEMBALIKAN FUNGSI SELEKSI HANYA UNTUK INPUT FORM AGAR BISA NGETIK */
-        input, select, textarea {
-            -webkit-user-select: auto;
-            -ms-user-select: auto;
-            user-select: auto;
-        }
+        input, select, textarea { -webkit-user-select: auto; -ms-user-select: auto; user-select: auto; }
 
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; display: flex; justify-content: center; min-height: 100dvh; -webkit-tap-highlight-color: transparent; overflow: hidden; transition: background-color 0.3s, color 0.3s;}
         .app-container { width: 100%; max-width: 480px; height: 100dvh; background-color: var(--bg-main); display: flex; flex-direction: column; position: relative; transition: background-color 0.3s;}
@@ -58,7 +50,6 @@
         .splash-logo { width: 80px; height: 80px; background: var(--accent-yellow); border-radius: 20px; display: flex; justify-content: center; align-items: center; font-size: 40px; color: #000; margin-bottom: 20px; animation: pulse 1.5s infinite;}
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         
-        /* PIN KEYPAD */
         .pin-dots { display: flex; gap: 16px; margin: 24px 0 40px 0; }
         .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--text-sub); }
         .pin-dot.filled { background: var(--accent-yellow); border-color: var(--accent-yellow); }
@@ -87,7 +78,6 @@
 
         .chart-wrapper { width: 100%; height: 350px; margin-bottom: 16px; border-radius: 12px; overflow: hidden; background-color: var(--bg-card); border: 1px solid var(--border-color);}
 
-        /* ORDER BOOK STYLE */
         .order-book { display: flex; gap: 16px; background: var(--bg-card); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 24px;}
         .ob-col { flex: 1; display: flex; flex-direction: column; gap: 6px; }
         .ob-header { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub); margin-bottom: 4px; font-weight: 600;}
@@ -131,7 +121,6 @@
         .toast-out { animation: fadeOut 0.4s forwards; }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
 
-        /* TOGGLE SWITCH STAKING */
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); transition: .4s; border-radius: 24px; }
@@ -244,7 +233,7 @@
                     <span>My Assets</span>
                     <div style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:500; color:var(--text-sub);">
                         Auto-Earn (APY 5%)
-                        <label class="switch"><input type="checkbox" id="toggleEarn" autocomplete="off" onchange="toggleStaking()"><span class="slider"></span></label>
+                        <label class="switch"><input type="checkbox" id="toggleEarn" autocomplete="nope" onchange="toggleStaking()"><span class="slider"></span></label>
                     </div>
                 </div>
                 
@@ -422,7 +411,6 @@
             else { document.body.removeAttribute('data-theme'); document.getElementById('meta-theme-color').setAttribute("content", "#0b0e11"); }
         }
 
-        // --- EARN / STAKING LOGIC ---
         function toggleStaking() {
             let isChecked = document.getElementById('toggleEarn').checked;
             if(isChecked) {
@@ -433,7 +421,6 @@
             }
         }
 
-        // --- UPDATE UI CORE ---
         function updateSemuaTampilan() {
             let totalUsd = wallets.fiat + (wallets.bitcoin * livePrices.bitcoin) + (wallets.ethereum * livePrices.ethereum) + (wallets.solana * livePrices.solana);
             
@@ -442,7 +429,6 @@
             document.getElementById('txt-curr-home').innerText = currentCurrency;
             document.getElementById('txt-curr-setting').innerText = currentCurrency;
 
-            // Render Dynamic Wallet List
             let wHtml = `
                 <div class="list-item" style="background:var(--bg-card); padding:16px; border-radius:12px; margin-bottom:12px; border:1px solid var(--border-color);">
                     <div class="item-left"><div class="coin-icon" style="background: rgba(14, 203, 129, 0.1); color: var(--green-up);"><span class="material-symbols-outlined">attach_money</span></div><div><div class="coin-name">Fiat Balance</div><div class="coin-symbol">Cash</div></div></div>
@@ -499,7 +485,6 @@
             document.getElementById('mini-market-list').innerHTML = htmlMini; document.getElementById('full-market-list').innerHTML = htmlFull;
         }
 
-        // --- ORDER BOOK ANIMATION ---
         function renderOrderBook() {
             let asks = ''; let bids = '';
             for(let i=0; i<6; i++) {
@@ -512,7 +497,6 @@
             document.getElementById('ob-asks').innerHTML = asks; document.getElementById('ob-bids').innerHTML = bids;
         }
 
-        // --- QUEUE & HISTORY ---
         function renderRiwayat() {
             let container = document.getElementById('riwayat-container');
             if(riwayatTx.length === 0) { container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-sub); font-size:14px;">No recent transactions.</div>`; return; }
@@ -555,7 +539,7 @@
             munculToast("Request submitted. Queued for processing.", "schedule");
         }
 
-        // --- MODALS ---
+        // --- MODALS DEPOSIT & WITHDRAW (DENGAN PENGAMAN KEYBOARD) ---
         function bukaModalBody(htmlKonten) { document.getElementById('modalContentDynamic').innerHTML = htmlKonten; document.getElementById('actionModal').style.display = 'flex'; }
         function tutupModal() { document.getElementById('actionModal').style.display = 'none'; }
 
@@ -564,11 +548,11 @@
                 <div class="modal-title">Deposit</div>
                 <div class="modal-subtitle">Add funds to your account</div>
                 <div class="input-group">
-                    <select class="select-custom" id="depoMethod" autocomplete="off">
+                    <select class="select-custom" id="depoMethod" autocomplete="nope" data-lpignore="true">
                         <option value="Bank Transfer">Bank Transfer / VA</option><option value="Credit Card">Credit Card</option><option value="PayPal">PayPal</option>
                     </select>
                 </div>
-                <div class="input-group"><input type="text" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false" class="modal-input" id="depoAmtFiat" placeholder="Enter amount..."><div style="color:var(--text-sub); font-weight:600;">${currentCurrency}</div></div>
+                <div class="input-group"><input type="number" inputmode="decimal" autocomplete="nope" autocorrect="off" spellcheck="false" autocapitalize="none" data-lpignore="true" class="modal-input" id="depoAmtFiat" placeholder="Enter Amount..."><div style="color:var(--text-sub); font-weight:600;">${currentCurrency}</div></div>
                 <button class="btn-confirm" onclick="submitDeposit()">Submit Deposit</button>
                 <button class="btn-close" onclick="tutupModal()">Cancel</button>
             `);
@@ -587,9 +571,9 @@
             bukaModalBody(`
                 <div class="modal-title">Withdraw Fiat</div>
                 <div class="modal-subtitle">Avail: ${formatUang(wallets.fiat)}</div>
-                <div class="input-group"><select class="select-custom" id="wdMethodFiat" autocomplete="off"><option value="Bank Account">To Bank Account</option><option value="PayPal">To PayPal</option></select></div>
-                <div class="input-group"><input type="text" autocomplete="off" autocorrect="off" spellcheck="false" class="modal-input" placeholder="Enter Account/Email..."></div>
-                <div class="input-group"><input type="text" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false" class="modal-input" id="wdAmtFiat" placeholder="Amount..."><div style="color:var(--text-sub); font-weight:600;">${currentCurrency}</div></div>
+                <div class="input-group"><select class="select-custom" id="wdMethodFiat" autocomplete="nope" data-lpignore="true"><option value="Bank Account">To Bank Account</option><option value="PayPal">To PayPal</option></select></div>
+                <div class="input-group"><input type="text" autocomplete="nope" autocorrect="off" spellcheck="false" autocapitalize="none" data-lpignore="true" data-form-type="other" class="modal-input" placeholder="Enter Dest. Account..."></div>
+                <div class="input-group"><input type="number" inputmode="decimal" autocomplete="nope" autocorrect="off" spellcheck="false" data-lpignore="true" data-form-type="other" class="modal-input" id="wdAmtFiat" placeholder="Amount..."><div style="color:var(--text-sub); font-weight:600;">${currentCurrency}</div></div>
                 <button class="btn-confirm" onclick="submitWithdraw()">Request Withdraw</button>
                 <button class="btn-close" onclick="tutupModal()">Cancel</button>
             `);
@@ -609,8 +593,8 @@
             bukaModalBody(`
                 <div class="modal-title">Convert Crypto</div>
                 <div class="modal-subtitle">Direct conversion (Zero Fee)</div>
-                <div class="input-group"><select class="select-custom" id="convDirection" autocomplete="off"><option value="buy">Fiat (${currentCurrency}) ➔ BTC</option><option value="sell">BTC ➔ Fiat (${currentCurrency})</option></select></div>
-                <div class="input-group"><input type="text" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false" class="modal-input" id="convAmt" placeholder="Enter amount to spend..."></div>
+                <div class="input-group"><select class="select-custom" id="convDirection" autocomplete="nope" data-lpignore="true"><option value="buy">Fiat (${currentCurrency}) ➔ BTC</option><option value="sell">BTC ➔ Fiat (${currentCurrency})</option></select></div>
+                <div class="input-group"><input type="number" inputmode="decimal" autocomplete="nope" autocorrect="off" spellcheck="false" data-lpignore="true" data-form-type="other" class="modal-input" id="convAmt" placeholder="Enter Amount..."></div>
                 <div style="text-align:right; font-size:12px; color:var(--accent-yellow); margin-bottom:20px;">1 BTC = ${formatUang(livePrices.bitcoin)}</div>
                 <button class="btn-confirm" onclick="submitConvert()">Convert Now</button>
                 <button class="btn-close" onclick="tutupModal()">Cancel</button>
@@ -636,11 +620,11 @@
 
         function bukaModalProfil(tipe) {
             if(tipe === 'Currency') {
-                bukaModalBody(`<div class="modal-title">Currency Settings</div><div class="input-group"><select class="select-custom" id="selCurr" autocomplete="off"><option value="USD" ${currentCurrency==='USD'?'selected':''}>US Dollar (USD)</option><option value="IDR" ${currentCurrency==='IDR'?'selected':''}>Indonesian Rupiah (IDR)</option></select></div><button class="btn-confirm" onclick="simpanCurrency()">Save</button><button class="btn-close" onclick="tutupModal()">Cancel</button>`);
+                bukaModalBody(`<div class="modal-title">Currency Settings</div><div class="input-group"><select class="select-custom" id="selCurr" autocomplete="nope" data-lpignore="true"><option value="USD" ${currentCurrency==='USD'?'selected':''}>US Dollar (USD)</option><option value="IDR" ${currentCurrency==='IDR'?'selected':''}>Indonesian Rupiah (IDR)</option></select></div><button class="btn-confirm" onclick="simpanCurrency()">Save</button><button class="btn-close" onclick="tutupModal()">Cancel</button>`);
             } else if (tipe === 'Passcode') {
-                bukaModalBody(`<div class="modal-title">Set App PIN</div><div class="modal-subtitle">Setup 6-digit lock screen PIN.</div><div class="input-group"><input type="password" autocomplete="new-password" data-lpignore="true" spellcheck="false" class="modal-input" id="setupPinInput" placeholder="Enter new 6-digit PIN" maxlength="6"></div><button class="btn-confirm" onclick="simpanPinBaru()">Save PIN</button><button class="btn-close" onclick="tutupModal()">Cancel</button>`);
+                bukaModalBody(`<div class="modal-title">Set App PIN</div><div class="modal-subtitle">Setup 6-digit lock screen PIN.</div><div class="input-group"><input type="password" autocomplete="new-password" data-lpignore="true" spellcheck="false" class="modal-input" id="setupPinInput" placeholder="Enter new PIN" maxlength="6"></div><button class="btn-confirm" onclick="simpanPinBaru()">Save PIN</button><button class="btn-close" onclick="tutupModal()">Cancel</button>`);
             } else if (tipe === 'Payment') {
-                bukaModalBody(`<div class="modal-title">Payment Methods</div><div class="modal-subtitle">No methods linked. Prototype only.</div><button class="btn-close" onclick="tutupModal()">Close</button>`);
+                bukaModalBody(`<div class="modal-title">Payment Methods</div><div class="input-group"><input type="text" autocomplete="nope" spellcheck="false" data-lpignore="true" data-form-type="other" class="modal-input" placeholder="Account Name"></div><div class="input-group"><input type="text" autocomplete="nope" spellcheck="false" data-lpignore="true" data-form-type="other" class="modal-input" placeholder="Account Number"></div><button class="btn-confirm" onclick="munculToast('Payment method linked successfully.', 'check_circle'); tutupModal();">Link Account</button><button class="btn-close" onclick="tutupModal()">Cancel</button>`);
             }
         }
 
