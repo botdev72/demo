@@ -7,259 +7,174 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
-
     <meta name="theme-color" content="#0b0e11">
     
     <style>
-        /* TEMA PROFESIONAL (BINANCE/BYBIT STYLE) */
+        /* TEMA PROFESIONAL */
         :root {
-            --bg-main: #0b0e11;
-            --bg-card: #1e2329;
-            --bg-hover: #2b3139;
-            --text-main: #eaecef;
-            --text-sub: #848e9c;
-            --accent-yellow: #fcd535;
-            --green-up: #0ecb81;
-            --red-down: #f6465d;
+            --bg-main: #0b0e11; --bg-card: #1e2329; --bg-hover: #2b3139;
+            --text-main: #eaecef; --text-sub: #848e9c;
+            --accent-yellow: #fcd535; --green-up: #0ecb81; --red-down: #f6465d;
             --border-color: #2b3139;
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; -webkit-tap-highlight-color: transparent; overflow: hidden; }
         
-        .app-container { width: 100%; max-width: 480px; height: 100vh; background-color: var(--bg-main); display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .app-container { width: 100%; max-width: 480px; height: 100vh; background-color: var(--bg-main); display: flex; flex-direction: column; position: relative; }
         .content-scroll { overflow-y: auto; flex-grow: 1; padding: 16px 16px 90px 16px; scroll-behavior: smooth;}
 
-        /* Halaman & Animasi */
+        /* LAYAR FULLSCREEN OVERLAY */
+        #splash-screen { position: absolute; top:0; left:0; width: 100%; height: 100%; background-color: var(--bg-main); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: opacity 0.5s; }
+        .splash-logo { width: 80px; height: 80px; background: var(--accent-yellow); border-radius: 20px; display: flex; justify-content: center; align-items: center; font-size: 40px; color: #000; margin-bottom: 20px; animation: pulse 1.5s infinite;}
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        
+        /* Layout Halaman */
         .view { display: none; width: 100%; animation: fade 0.3s ease-in-out; }
         .view.active { display: block; }
         @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Header / User Area Top */
+        /* Komponen UI */
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .user-avatar { width: 32px; height: 32px; background-color: var(--bg-hover); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; color: var(--text-sub); }
-        .top-icons { display: flex; gap: 16px; color: var(--text-sub); }
-
-        /* Saldo Premium Card */
         .balance-card { padding: 0 0 24px 0; }
         .balance-header { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-sub); margin-bottom: 8px; font-weight: 500;}
         .balance-amount { font-size: 36px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: baseline; gap: 4px;}
-        .balance-btc { font-size: 14px; color: var(--text-main); font-weight: 500; }
         .badge-pro { background: linear-gradient(90deg, #fcd535, #f0b90b); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; margin-left: 8px;}
-
-        /* Menu Aksi */
+        
         .actions-row { display: flex; justify-content: space-between; margin-bottom: 32px; }
         .action-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; flex: 1;}
-        .action-icon { width: 44px; height: 44px; background-color: var(--bg-card); border-radius: 12px; display: flex; justify-content: center; align-items: center; color: var(--text-main); transition: 0.2s; }
-        .action-item:hover .action-icon { background-color: var(--bg-hover); }
+        .action-icon { width: 44px; height: 44px; background-color: var(--bg-card); border-radius: 12px; display: flex; justify-content: center; align-items: center; color: var(--text-main); }
         .action-text { font-size: 12px; font-weight: 500; color: var(--text-main); }
 
-        /* Widget Pasar & Daftar */
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .section-title { font-size: 18px; font-weight: 600; }
-        .section-link { font-size: 13px; color: var(--text-sub); font-weight: 500; }
-
+        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
         .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border-color); }
         .list-item:last-child { border-bottom: none; }
         .item-left { display: flex; align-items: center; gap: 12px; }
-        .coin-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background-color: var(--bg-card); color: var(--accent-yellow);}
+        .coin-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background-color: var(--bg-card); color: var(--text-main);}
         .coin-icon img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-        .coin-name { font-weight: 600; font-size: 15px; color: var(--text-main); }
+        .coin-name { font-weight: 600; font-size: 15px; }
         .coin-symbol { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+        .price-text { font-weight: 600; font-size: 15px; text-align: right; }
         
-        .item-right { text-align: right; }
-        .price-text { font-weight: 600; font-size: 15px; }
-        .change-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-top: 4px; width: 65px; text-align: center; color: white;}
-        .bg-up { background-color: var(--green-up); }
-        .bg-down { background-color: var(--red-down); }
+        /* Aset di Portfolio */
+        .asset-card { background: var(--bg-card); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;}
 
-        /* Grafik TradingView */
-        .chart-wrapper { width: 100%; height: 400px; margin-bottom: 24px; border-radius: 8px; overflow: hidden; background-color: var(--bg-card);}
-
-        /* Navigasi Bawah Modern */
-        .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; background-color: var(--bg-main); display: flex; justify-content: space-around; padding: 12px 0 24px 0; border-top: 1px solid var(--border-color); z-index: 50;}
-        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--text-sub); cursor: pointer; gap: 4px; font-weight: 500; transition: color 0.2s;}
-        .nav-item.active { color: var(--text-main); }
-        .nav-item.active .material-symbols-outlined { color: var(--accent-yellow); font-variation-settings: 'FILL' 1;}
-
-        /* Modal / Pop up Aksi */
+        /* Modal Transaksi Spesifik */
         .modal-overlay { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: flex-end; z-index: 100; backdrop-filter: blur(4px);}
-        .modal-content { background-color: var(--bg-card); width: 100%; padding: 24px; border-radius: 24px 24px 0 0; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-sizing: border-box;}
+        .modal-content { background-color: var(--bg-card); width: 100%; padding: 24px; border-radius: 24px 24px 0 0; animation: slideUp 0.3s ease; box-sizing: border-box;}
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .modal-title { font-size: 20px; font-weight: 600; margin-bottom: 8px;}
-        .modal-subtitle { color: var(--text-sub); font-size: 14px; margin-bottom: 24px;}
-        .input-group { background-color: var(--bg-main); border: 1px solid var(--border-color); border-radius: 12px; display: flex; align-items: center; padding: 0 16px; margin-bottom: 16px; transition: border 0.2s;}
-        .input-group:focus-within { border-color: var(--accent-yellow); }
-        .modal-input { width: 100%; padding: 16px 0; background: transparent; border: none; color: var(--text-main); font-size: 20px; font-weight: 600; outline: none; font-family: 'Inter', sans-serif;}
-        .input-currency { font-size: 16px; color: var(--text-sub); font-weight: 600; }
-        .btn-confirm { background-color: var(--accent-yellow); color: #000; border: none; padding: 16px; width: 100%; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;}
+        .input-group { background-color: var(--bg-main); border: 1px solid var(--border-color); border-radius: 12px; display: flex; align-items: center; padding: 0 16px; margin-bottom: 16px; }
+        .modal-input { width: 100%; padding: 16px 0; background: transparent; border: none; color: var(--text-main); font-size: 16px; font-weight: 600; outline: none; font-family: 'Inter', sans-serif;}
+        .btn-confirm { background-color: var(--accent-yellow); color: #000; border: none; padding: 16px; width: 100%; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;}
         .btn-close { background: transparent; color: var(--text-sub); border: none; padding: 16px; width: 100%; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px;}
 
-        /* Profil */
-        .profile-menu { margin-top: 24px; }
-        .menu-row { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border-color); cursor: pointer;}
-        .menu-row:last-child { border-bottom: none; }
-        .menu-icon { color: var(--text-sub); }
-        .menu-text { flex-grow: 1; font-weight: 500; font-size: 15px;}
-        .menu-arrow { color: var(--text-sub); }
+        /* Navigasi */
+        .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; background-color: var(--bg-main); display: flex; justify-content: space-around; padding: 12px 0 24px 0; border-top: 1px solid var(--border-color); z-index: 50;}
+        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--text-sub); cursor: pointer; gap: 4px; font-weight: 500;}
+        .nav-item.active { color: var(--text-main); }
+        .nav-item.active .material-symbols-outlined { color: var(--accent-yellow); font-variation-settings: 'FILL' 1;}
+        
+        /* Spinner */
+        .spinner { border: 3px solid rgba(0,0,0,0.1); border-top: 3px solid #000; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none;}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
+    <div class="app-container" id="app-container">
+        
+        <div id="splash-screen" onclick="mulaiAplikasi()">
+            <div class="splash-logo"><span class="material-symbols-outlined" style="font-size: 40px;">currency_bitcoin</span></div>
+            <h2 style="margin:0; font-size: 24px;">Crypto Pro</h2>
+            <p style="color: var(--text-sub); font-size: 14px; margin-top: 8px;">Tap anywhere to enter</p>
+        </div>
+
         <div class="content-scroll">
-            
             <div class="view active" id="view-home">
-                
                 <div class="top-bar">
                     <div class="user-avatar"><span class="material-symbols-outlined">person</span></div>
-                    <div class="top-icons">
-                        <span class="material-symbols-outlined">search</span>
-                        <span class="material-symbols-outlined">qr_code_scanner</span>
-                        <span class="material-symbols-outlined">notifications</span>
-                    </div>
+                    <div style="color: var(--text-sub);"><span class="material-symbols-outlined">notifications</span></div>
                 </div>
 
                 <div class="balance-card">
-                    <div class="balance-header">
-                        Total Balance <span class="material-symbols-outlined" style="font-size: 16px; cursor: pointer;" onclick="toggleSaldo()" id="eye-icon">visibility</span>
-                    </div>
-                    <div class="balance-amount"><span style="font-size: 24px;">$</span><span id="saldo-usd">0.00</span></div>
-                    <div class="balance-btc" id="saldo-btc">≈ 0.00000000 BTC</div>
+                    <div class="balance-header">Total Asset Value <span class="badge-pro">PRO</span></div>
+                    <div class="balance-amount"><span style="font-size: 24px;">$</span><span id="total-balance-usd">0.00</span></div>
+                    <div style="font-size: 14px; color: var(--green-up); font-weight: 500;">+2.45% Today</div>
                 </div>
 
                 <div class="actions-row">
-                    <div class="action-item" onclick="bukaModal('Deposit')">
-                        <div class="action-icon"><span class="material-symbols-outlined">payments</span></div>
-                        <div class="action-text">Deposit</div>
-                    </div>
-                    <div class="action-item" onclick="bukaModal('Beli')">
-                        <div class="action-icon"><span class="material-symbols-outlined">shopping_cart</span></div>
-                        <div class="action-text">Buy</div>
-                    </div>
-                    <div class="action-item" onclick="bukaModal('Jual')">
-                        <div class="action-icon"><span class="material-symbols-outlined">sell</span></div>
-                        <div class="action-text">Sell</div>
-                    </div>
-                    <div class="action-item" onclick="alert('Alamat Deposit BTC: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')">
-                        <div class="action-icon"><span class="material-symbols-outlined">south_west</span></div>
-                        <div class="action-text">Receive</div>
-                    </div>
+                    <div class="action-item" onclick="bukaModalDeposit()"><div class="action-icon"><span class="material-symbols-outlined">payments</span></div><div class="action-text">Deposit</div></div>
+                    <div class="action-item" onclick="bukaModalWithdraw()"><div class="action-icon"><span class="material-symbols-outlined">send</span></div><div class="action-text">Withdraw</div></div>
+                    <div class="action-item" onclick="bukaModalTrade('Beli')"><div class="action-icon"><span class="material-symbols-outlined">shopping_cart</span></div><div class="action-text">Buy</div></div>
+                    <div class="action-item" onclick="bukaModalTrade('Jual')"><div class="action-icon"><span class="material-symbols-outlined">sell</span></div><div class="action-text">Sell</div></div>
                 </div>
 
-                <div class="section-header">
-                    <div class="section-title">Favorites</div>
-                    <div class="section-link">View More</div>
-                </div>
-                
-                <div id="mini-market-list">
-                    <div style="text-align: center; padding: 20px; color: var(--text-sub); font-size: 14px;">Loading market data...</div>
-                </div>
-            </div>
-
-            <div class="view" id="view-market">
-                <div class="section-title" style="margin-bottom: 20px;">Markets</div>
-                
-                <div class="chart-wrapper">
-                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                    <script type="text/javascript">
-                        new TradingView.widget({
-                            "autosize": true,
-                            "symbol": "BINANCE:BTCUSDT",
-                            "interval": "15",
-                            "timezone": "Asia/Jakarta",
-                            "theme": "dark",
-                            "style": "1",
-                            "locale": "en",
-                            "enable_publishing": false,
-                            "backgroundColor": "#1e2329",
-                            "gridColor": "#2b3139",
-                            "hide_top_toolbar": true,
-                            "hide_legend": false,
-                            "save_image": false,
-                            "container_id": "tradingview_chart"
-                        });
-                    </script>
-                </div>
-
-                <div class="section-header" style="margin-top: 10px;">
-                    <div style="font-weight: 500; color: var(--text-sub); font-size: 13px;">Name</div>
-                    <div style="font-weight: 500; color: var(--text-sub); font-size: 13px;">Last Price / 24h Change</div>
-                </div>
-                
-                <div id="full-market-list"></div>
+                <div class="section-title">Markets</div>
+                <div id="mini-market-list"></div>
             </div>
 
             <div class="view" id="view-wallet">
-                <div class="section-title" style="margin-bottom: 20px;">Transaction History</div>
-                <div id="riwayat-container">
-                    <div class="list-item">
-                        <div class="item-left">
-                            <div class="coin-icon" style="background: rgba(14, 203, 129, 0.1); color: var(--green-up);"><span class="material-symbols-outlined">south_west</span></div>
-                            <div><div class="coin-name">Deposit Success</div><div class="coin-symbol">System Reward</div></div>
-                        </div>
-                        <div class="item-right">
-                            <div class="price-text" style="color: var(--green-up);">+$10,000.00</div><div class="coin-symbol">Completed</div>
-                        </div>
+                <div class="section-title">My Assets</div>
+                
+                <div class="asset-card">
+                    <div class="item-left">
+                        <div class="coin-icon" style="background: rgba(14, 203, 129, 0.1); color: var(--green-up);"><span class="material-symbols-outlined">attach_money</span></div>
+                        <div><div class="coin-name">US Dollar</div><div class="coin-symbol">Fiat Cash</div></div>
+                    </div>
+                    <div class="price-text" id="asset-usd-amount">$0.00</div>
+                </div>
+
+                <div class="asset-card">
+                    <div class="item-left">
+                        <div class="coin-icon"><img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=025" alt="BTC"></div>
+                        <div><div class="coin-name">Bitcoin</div><div class="coin-symbol">BTC</div></div>
+                    </div>
+                    <div class="item-right">
+                        <div class="price-text" id="asset-btc-amount">0.0000 BTC</div>
+                        <div class="coin-symbol" id="asset-btc-value">≈ $0.00</div>
                     </div>
                 </div>
+
+                <div class="section-title" style="margin-top: 24px;">History</div>
+                <div id="riwayat-container"></div>
             </div>
 
             <div class="view" id="view-profile">
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
                     <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--accent-yellow); color: #000; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: 700;">BA</div>
-                    <div>
-                        <div style="font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px;">Bro Asyik <span class="material-symbols-outlined" style="color: var(--green-up); font-size: 18px;">verified</span></div>
-                        <div style="font-size: 13px; color: var(--text-sub); margin-top: 4px;">UID: 194857291 • Regular</div>
-                    </div>
+                    <div><div style="font-size: 20px; font-weight: 700;">Bro Asyik</div><div style="font-size: 13px; color: var(--text-sub);">Verified Account</div></div>
                 </div>
-
-                <div class="profile-menu">
-                    <div class="menu-row"><span class="material-symbols-outlined menu-icon">security</span><span class="menu-text">Security</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
-                    <div class="menu-row"><span class="material-symbols-outlined menu-icon">account_balance</span><span class="menu-text">Payment Methods</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
-                    <div class="menu-row"><span class="material-symbols-outlined menu-icon">settings</span><span class="menu-text">Settings</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
-                    <div class="menu-row"><span class="material-symbols-outlined menu-icon">support_agent</span><span class="menu-text">Help & Support</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
-                    <div class="menu-row" onclick="resetSaldo()"><span class="material-symbols-outlined menu-icon" style="color: var(--red-down);">delete_forever</span><span class="menu-text" style="color: var(--red-down);">Reset Account Data</span></div>
-                </div>
+                <div style="padding: 16px 0; border-bottom: 1px solid var(--border-color); color: var(--red-down); cursor: pointer; font-weight: 500;" onclick="resetSaldo()">Reset All Data</div>
             </div>
-
         </div>
 
         <div class="bottom-nav">
-            <div class="nav-item active" onclick="pindahHalaman('view-home', this)">
-                <span class="material-symbols-outlined">home</span>Home
+            <div class="nav-item active" onclick="pindahHalaman('view-home', this)"><span class="material-symbols-outlined">home</span>Home</div>
+            <div class="nav-item" onclick="bukaModalTrade('Beli')" style="transform: translateY(-8px);">
+                <div style="width: 48px; height: 48px; background: var(--accent-yellow); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #000;"><span class="material-symbols-outlined">swap_horiz</span></div>
             </div>
-            <div class="nav-item" onclick="pindahHalaman('view-market', this)">
-                <span class="material-symbols-outlined">candlestick_chart</span>Markets
-            </div>
-            <div class="nav-item" onclick="bukaModal('Beli')" style="transform: translateY(-8px);">
-                <div style="width: 48px; height: 48px; background: var(--accent-yellow); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #000; box-shadow: 0 4px 10px rgba(252, 213, 53, 0.3);">
-                    <span class="material-symbols-outlined">swap_horiz</span>
-                </div>
-            </div>
-            <div class="nav-item" onclick="pindahHalaman('view-wallet', this)">
-                <span class="material-symbols-outlined">account_balance_wallet</span>Wallets
-            </div>
-            <div class="nav-item" onclick="pindahHalaman('view-profile', this)">
-                <span class="material-symbols-outlined">person</span>Profile
-            </div>
+            <div class="nav-item" onclick="pindahHalaman('view-wallet', this)"><span class="material-symbols-outlined">account_balance_wallet</span>Wallets</div>
+            <div class="nav-item" onclick="pindahHalaman('view-profile', this)"><span class="material-symbols-outlined">person</span>Profile</div>
         </div>
 
         <div class="modal-overlay" id="actionModal">
             <div class="modal-content">
                 <div class="modal-title" id="modalTitle">Action</div>
-                <div class="modal-subtitle" id="modalSubtitle">Available: $0.00</div>
+                <div class="modal-subtitle" id="modalSubtitle">Info</div>
                 
+                <div class="input-group" id="inputAddressGroup" style="display: none;">
+                    <input type="text" class="modal-input" id="inputAddress" placeholder="Enter BTC Address (e.g. 1A1zP...)">
+                </div>
+
                 <div class="input-group">
                     <input type="number" class="modal-input" id="inputJumlah" placeholder="0.00" step="any">
-                    <div class="input-currency" id="currencyLabel">USD</div>
+                    <div style="color: var(--text-sub); font-weight: 600;" id="currencyLabel">USD</div>
                 </div>
                 
-                <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-sub); margin-bottom: 24px;">
-                    <span>Current Price</span>
-                    <span id="infoHargaBtc" style="color: var(--text-main); font-weight: 500;">$0.00</span>
-                </div>
-                
-                <button class="btn-confirm" onclick="prosesTransaksi()">Confirm Order</button>
+                <button class="btn-confirm" id="btnProses" onclick="prosesAksi()">
+                    <div class="spinner" id="loadingSpinner"></div>
+                    <span id="btnText">Confirm</span>
+                </button>
                 <button class="btn-close" onclick="tutupModal()">Cancel</button>
             </div>
         </div>
@@ -267,133 +182,185 @@
     </div>
 
     <script>
-        // LOGIKA APLIKASI (Sama seperti V5, dengan penyesuaian UI)
+        // --- 1. FULLSCREEN TRIGGER ---
+        function mulaiAplikasi() {
+            let elem = document.documentElement;
+            // Meminta browser masuk ke mode layar penuh (Harus dari klik user)
+            if (elem.requestFullscreen) { elem.requestFullscreen(); }
+            else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); } // Safari
+            
+            // Sembunyikan layar splash dan mulai render data
+            document.getElementById('splash-screen').style.opacity = '0';
+            setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; }, 500);
+            
+            inisialisasiDatabase();
+            ambilDataPasar();
+        }
+
+        // --- 2. STATE & DATABASE ---
         let saldoUSD = 0, saldoBTC = 0, btcPriceReal = 60000; 
-        let jenisAksiSaatIni = "";
-        let saldoDisembunyikan = false; // Fitur Mata
+        let tipeAksi = ""; 
 
         function inisialisasiDatabase() {
-            let simpananUSD = localStorage.getItem("app_saldoUSD");
-            let simpananBTC = localStorage.getItem("app_saldoBTC");
-            if (simpananUSD !== null && simpananBTC !== null) {
-                saldoUSD = parseFloat(simpananUSD); saldoBTC = parseFloat(simpananBTC);
-            } else {
-                saldoUSD = 10000.00; saldoBTC = 0.5000; simpanKeDatabase();
-            }
-            updateTampilanSaldo();
+            let sUsd = localStorage.getItem("app_saldoUSD");
+            let sBtc = localStorage.getItem("app_saldoBTC");
+            if (sUsd !== null) { saldoUSD = parseFloat(sUsd); saldoBTC = parseFloat(sBtc); } 
+            else { saldoUSD = 5000.00; saldoBTC = 0.1500; simpanKeDatabase(); }
+            updatePortfolio();
         }
 
         function simpanKeDatabase() {
-            localStorage.setItem("app_saldoUSD", saldoUSD);
-            localStorage.setItem("app_saldoBTC", saldoBTC);
+            localStorage.setItem("app_saldoUSD", saldoUSD); localStorage.setItem("app_saldoBTC", saldoBTC);
         }
 
-        function resetSaldo() {
-            if(confirm("Yakin ingin menghapus seluruh riwayat dan mereset saldo ke awal?")) {
-                localStorage.clear(); alert("Data berhasil direset!"); window.location.reload();
-            }
-        }
+        function resetSaldo() { if(confirm("Reset seluruh saldo dan history?")) { localStorage.clear(); window.location.reload(); } }
 
-        function pindahHalaman(idHalaman, elemenTombol) {
+        function pindahHalaman(id, btn) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(idHalaman).classList.add('active');
+            document.getElementById(id).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            if(elemenTombol) elemenTombol.classList.add('active');
+            if(btn) btn.classList.add('active');
         }
 
-        function toggleSaldo() {
-            saldoDisembunyikan = !saldoDisembunyikan;
-            document.getElementById('eye-icon').innerText = saldoDisembunyikan ? 'visibility_off' : 'visibility';
-            updateTampilanSaldo();
-        }
+        // --- 3. DYNAMIC PORTFOLIO CALCULATION ---
+        function updatePortfolio() {
+            let nilaiBtcDalamUsd = saldoBTC * btcPriceReal;
+            let totalKekayaan = saldoUSD + nilaiBtcDalamUsd;
 
-        function updateTampilanSaldo() {
-            if(saldoDisembunyikan) {
-                document.getElementById('saldo-usd').innerText = "******";
-                document.getElementById('saldo-btc').innerText = "******";
-            } else {
-                document.getElementById('saldo-usd').innerText = saldoUSD.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                document.getElementById('saldo-btc').innerText = "≈ " + saldoBTC.toFixed(8) + " BTC";
-            }
+            // Update Header Home
+            document.getElementById('total-balance-usd').innerText = totalKekayaan.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            
+            // Update Rincian di Tab Wallet
+            document.getElementById('asset-usd-amount').innerText = "$" + saldoUSD.toLocaleString('en-US', {minimumFractionDigits: 2});
+            document.getElementById('asset-btc-amount').innerText = saldoBTC.toFixed(6) + " BTC";
+            document.getElementById('asset-btc-value').innerText = "≈ $" + nilaiBtcDalamUsd.toLocaleString('en-US', {minimumFractionDigits: 2});
         }
 
         async function ambilDataPasar() {
             try {
-                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,solana,ripple&vs_currencies=usd&include_24hr_change=true');
-                const data = await response.json();
-                if(data.bitcoin && data.bitcoin.usd) btcPriceReal = data.bitcoin.usd;
-                tampilkanDaftarPasar(data);
-            } catch (error) { console.error("Gagal load API", error); }
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true');
+                const data = await res.json();
+                if(data.bitcoin) btcPriceReal = data.bitcoin.usd;
+                updatePortfolio(); // Hitung ulang total aset saat harga baru ditarik
+                
+                // Render List Mini Market di Home
+                let html = "";
+                ['bitcoin', 'ethereum', 'solana'].forEach(id => {
+                    if(data[id]) {
+                        let koin = id==='bitcoin'?'BTC':id==='ethereum'?'ETH':'SOL';
+                        let img = id==='bitcoin'?'bitcoin-btc-logo':id==='ethereum'?'ethereum-eth-logo':'solana-sol-logo';
+                        let harga = data[id].usd.toLocaleString('en-US', {minimumFractionDigits:2});
+                        let persen = data[id].usd_24h_change;
+                        let warna = persen >= 0 ? 'var(--green-up)' : 'var(--red-down)';
+                        
+                        html += `
+                        <div class="list-item">
+                            <div class="item-left"><div class="coin-icon"><img src="https://cryptologos.cc/logos/${img}.svg?v=025"></div><div class="coin-name">${koin}</div></div>
+                            <div class="item-right"><div class="price-text">$${harga}</div><div style="font-size:12px; color:${warna}; font-weight:500;">${persen>0?'+':''}${persen.toFixed(2)}%</div></div>
+                        </div>`;
+                    }
+                });
+                document.getElementById('mini-market-list').innerHTML = html;
+            } catch (e) { console.log(e); }
         }
 
-        function tampilkanDaftarPasar(data) {
-            const koinList = [
-                { id: 'bitcoin', nama: 'Bitcoin', simbol: 'BTC', iconUrl: 'https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=025' },
-                { id: 'ethereum', nama: 'Ethereum', simbol: 'ETH', iconUrl: 'https://cryptologos.cc/logos/ethereum-eth-logo.svg?v=025' },
-                { id: 'binancecoin', nama: 'BNB', simbol: 'BNB', iconUrl: 'https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=025' },
-                { id: 'solana', nama: 'Solana', simbol: 'SOL', iconUrl: 'https://cryptologos.cc/logos/solana-sol-logo.svg?v=025' },
-                { id: 'ripple', nama: 'XRP', simbol: 'XRP', iconUrl: 'https://cryptologos.cc/logos/xrp-xrp-logo.svg?v=025' }
-            ];
-
-            let htmlKonten = "";
-            koinList.forEach(koin => {
-                if (data[koin.id]) {
-                    let harga = data[koin.id].usd < 1 ? data[koin.id].usd.toFixed(4) : data[koin.id].usd.toLocaleString('en-US', {minimumFractionDigits: 2});
-                    let persen = data[koin.id].usd_24h_change;
-                    let kelasBg = persen >= 0 ? 'bg-up' : 'bg-down';
-                    htmlKonten += `
-                    <div class="list-item">
-                        <div class="item-left">
-                            <div class="coin-icon"><img src="${koin.iconUrl}" alt="${koin.simbol}"></div>
-                            <div><div class="coin-name">${koin.simbol}</div><div class="coin-symbol">${koin.nama}</div></div>
-                        </div>
-                        <div class="item-right">
-                            <div class="price-text">$${harga}</div>
-                            <div class="change-badge ${kelasBg}">${persen >= 0 ? '+' : ''}${persen.toFixed(2)}%</div>
-                        </div>
-                    </div>`;
-                }
-            });
-            document.getElementById('mini-market-list').innerHTML = htmlKonten;
-            document.getElementById('full-market-list').innerHTML = htmlKonten;
+        // --- 4. REALISTIC FLOWS (DEPOSIT, WITHDRAW, TRADE) ---
+        function resetModal() {
+            document.getElementById('inputAddressGroup').style.display = 'none';
+            document.getElementById('inputAddress').value = "";
+            document.getElementById('inputJumlah').value = "";
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('btnText').innerText = 'Confirm';
         }
 
-        function bukaModal(jenis) {
-            if(jenis === 'Deposit') { alert("Fitur Deposit Sedang Maintenance"); return; }
-            jenisAksiSaatIni = jenis;
-            document.getElementById('modalTitle').innerText = jenis + " BTC";
-            document.getElementById('modalSubtitle').innerText = jenis === 'Beli' ? `Available: $${saldoUSD.toLocaleString('en-US')}` : `Available: ${saldoBTC.toFixed(6)} BTC`;
-            document.getElementById('currencyLabel').innerText = jenis === 'Beli' ? "USD" : "BTC";
-            document.getElementById('infoHargaBtc').innerText = `$${btcPriceReal.toLocaleString('en-US')}`;
-            document.getElementById('inputJumlah').value = ""; 
+        function bukaModalDeposit() {
+            tipeAksi = "Deposit"; resetModal();
+            document.getElementById('modalTitle').innerText = "Deposit Fiat (USD)";
+            document.getElementById('modalSubtitle').innerText = "Transfer via Bank Card / Wire";
+            document.getElementById('currencyLabel').innerText = "USD";
             document.getElementById('actionModal').style.display = 'flex';
-            setTimeout(() => document.getElementById('inputJumlah').focus(), 100);
+        }
+
+        function bukaModalWithdraw() {
+            tipeAksi = "Withdraw"; resetModal();
+            document.getElementById('modalTitle').innerText = "Withdraw Crypto";
+            document.getElementById('modalSubtitle').innerText = `Available: ${saldoBTC.toFixed(6)} BTC`;
+            document.getElementById('currencyLabel').innerText = "BTC";
+            document.getElementById('inputAddressGroup').style.display = 'flex'; // Munculkan input alamat
+            document.getElementById('actionModal').style.display = 'flex';
+        }
+
+        function bukaModalTrade(jenis) {
+            tipeAksi = jenis; resetModal();
+            document.getElementById('modalTitle').innerText = jenis + " BTC (Market)";
+            document.getElementById('modalSubtitle').innerText = jenis === 'Beli' ? `Available USD: $${saldoUSD.toLocaleString()}` : `Available BTC: ${saldoBTC.toFixed(6)}`;
+            document.getElementById('currencyLabel').innerText = jenis === 'Beli' ? "USD" : "BTC";
+            document.getElementById('actionModal').style.display = 'flex';
         }
 
         function tutupModal() { document.getElementById('actionModal').style.display = 'none'; }
 
-        function prosesTransaksi() {
+        // LOGIKA PROSES & SIMULASI LOADING
+        function prosesAksi() {
             let input = parseFloat(document.getElementById('inputJumlah').value);
-            if (isNaN(input) || input <= 0) return;
+            if (isNaN(input) || input <= 0) { alert("Invalid amount!"); return; }
 
-            let riwayat = "";
-            if (jenisAksiSaatIni === 'Beli') {
-                if (input > saldoUSD) { alert("Insufficient USD Balance"); return; }
-                let dptBtc = input / btcPriceReal;
-                saldoUSD -= input; saldoBTC += dptBtc;
-                riwayat = `<div class="list-item"><div class="item-left"><div class="coin-icon" style="background: rgba(246, 70, 93, 0.1); color: var(--red-down);"><span class="material-symbols-outlined">north_east</span></div><div><div class="coin-name">Buy BTC</div><div class="coin-symbol">Market Order</div></div></div><div class="item-right"><div class="price-text">-$${input.toFixed(2)}</div><div class="coin-symbol">Completed</div></div></div>`;
-            } else {
-                if (input > saldoBTC) { alert("Insufficient BTC Balance"); return; }
-                let dptUsd = input * btcPriceReal;
-                saldoBTC -= input; saldoUSD += dptUsd;
-                riwayat = `<div class="list-item"><div class="item-left"><div class="coin-icon" style="background: rgba(14, 203, 129, 0.1); color: var(--green-up);"><span class="material-symbols-outlined">south_west</span></div><div><div class="coin-name">Sell BTC</div><div class="coin-symbol">Market Order</div></div></div><div class="item-right"><div class="price-text" style="color:var(--green-up);">+$${dptUsd.toFixed(2)}</div><div class="coin-symbol">Completed</div></div></div>`;
-            }
+            // Loading Simulation UI
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('btnText').innerText = 'Processing...';
 
-            document.getElementById('riwayat-container').insertAdjacentHTML('afterbegin', riwayat);
-            updateTampilanSaldo(); simpanKeDatabase(); tutupModal();
+            // Jeda 1.5 detik agar terasa seperti mengirim data ke server sungguhan
+            setTimeout(() => {
+                let riwayat = "";
+                
+                if (tipeAksi === 'Deposit') {
+                    saldoUSD += input;
+                    alert(`Success! $${input.toLocaleString()} deposited to your account.`);
+                    riwayat = buatRiwayat('payments', 'Deposit Fiat', `+$${input.toLocaleString()}`, 'var(--green-up)');
+                
+                } else if (tipeAksi === 'Withdraw') {
+                    let addr = document.getElementById('inputAddress').value;
+                    if(addr.length < 10) { alert("Invalid BTC Address!"); resetModal(); return; }
+                    if (input > saldoBTC) { alert("Insufficient BTC!"); resetModal(); return; }
+                    
+                    saldoBTC -= input;
+                    alert(`Success! ${input} BTC sent to ${addr.substring(0,6)}...`);
+                    riwayat = buatRiwayat('send', 'Withdraw BTC', `-${input} BTC`, 'var(--text-main)');
+                
+                } else if (tipeAksi === 'Beli') {
+                    if (input > saldoUSD) { alert("Insufficient USD!"); resetModal(); return; }
+                    let dptBtc = input / btcPriceReal;
+                    saldoUSD -= input; saldoBTC += dptBtc;
+                    riwayat = buatRiwayat('shopping_cart', 'Buy BTC', `+${dptBtc.toFixed(6)} BTC`, 'var(--green-up)');
+                
+                } else if (tipeAksi === 'Jual') {
+                    if (input > saldoBTC) { alert("Insufficient BTC!"); resetModal(); return; }
+                    let dptUsd = input * btcPriceReal;
+                    saldoBTC -= input; saldoUSD += dptUsd;
+                    riwayat = buatRiwayat('sell', 'Sell BTC', `+$${dptUsd.toLocaleString()}`, 'var(--green-up)');
+                }
+
+                if(riwayat !== "") document.getElementById('riwayat-container').insertAdjacentHTML('afterbegin', riwayat);
+                
+                updatePortfolio();
+                simpanKeDatabase();
+                tutupModal();
+            }, 1500); // 1.5 detik
         }
 
-        inisialisasiDatabase(); ambilDataPasar(); setInterval(ambilDataPasar, 30000); 
+        function buatRiwayat(icon, title, amount, color) {
+            return `
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="coin-icon" style="background: var(--bg-hover);"><span class="material-symbols-outlined">${icon}</span></div>
+                    <div><div class="coin-name">${title}</div><div class="coin-symbol">Completed</div></div>
+                </div>
+                <div class="price-text" style="color: ${color};">${amount}</div>
+            </div>`;
+        }
+
+        // Loop update harga setiap 30 detik (tapi jangan panggil inisiasi karena tertahan layar splash)
+        setInterval(ambilDataPasar, 30000);
     </script>
 </body>
 </html>
