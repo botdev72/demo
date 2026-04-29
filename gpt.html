@@ -1,40 +1,87 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>BRUTAL MODE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binance Simulator</title>
+
 <style>
-body{background:#0b0e11;color:white;font-family:Arial}
-.container{max-width:480px;margin:auto;padding:16px}
-.card{background:#1e2329;padding:16px;margin-bottom:12px;border-radius:10px}
-.row{display:flex;justify-content:space-between}
-.green{color:#0ecb81}.red{color:#f6465d}
+body { margin:0; background:#0b0e11; color:#eaecef; font-family:Arial; }
+.container { max-width:1200px; margin:auto; padding:10px; }
+
+.grid {
+    display:grid;
+    grid-template-columns: 2fr 1fr;
+    gap:10px;
+}
+
+.card {
+    background:#1e2329;
+    padding:10px;
+    border-radius:6px;
+}
+
+.row { display:flex; justify-content:space-between; font-size:12px; }
+
+.green { color:#0ecb81; }
+.red { color:#f6465d; }
+
+input, button {
+    width:100%;
+    padding:8px;
+    margin-top:5px;
+    border:none;
+    border-radius:4px;
+}
+
+button { background:#fcd535; cursor:pointer; }
+
+h3 { margin:0 0 10px 0; font-size:14px; }
+
+.orderbook { height:250px; overflow:hidden; }
+
 </style>
 </head>
+
 <body>
 
 <div class="container">
 
-<div class="card">
-<h3>Balance</h3>
-<div id="balance"></div>
-</div>
+<h2>BTC/USDT</h2>
+
+<div class="grid">
+
+<!-- LEFT -->
+<div>
 
 <div class="card">
-<h3>BTC</h3>
-<div id="price"></div>
+<h3>Price</h3>
+<div id="price" style="font-size:24px;"></div>
 </div>
 
 <div class="card">
 <h3>Order Book</h3>
-<div id="order"></div>
+<div class="orderbook" id="orderbook"></div>
+</div>
+
+</div>
+
+<!-- RIGHT -->
+<div>
+
+<div class="card">
+<h3>Wallet</h3>
+<div id="balance"></div>
 </div>
 
 <div class="card">
 <h3>Trade</h3>
-<input id="amt" placeholder="Amount">
-<button onclick="buy()">BUY</button>
-<button onclick="sell()">SELL</button>
+
+<input id="amount" placeholder="Amount">
+
+<button onclick="buy()">Buy</button>
+<button onclick="sell()">Sell</button>
+
 </div>
 
 <div class="card">
@@ -44,131 +91,149 @@ body{background:#0b0e11;color:white;font-family:Arial}
 
 </div>
 
+</div>
+</div>
+
 <script>
 
-let wallet={fiat:5000,btc:0};
-let price=70000;
-let history=[];
-let trend=1;
+// ===== STATE =====
+let wallet = { usdt: 5000, btc: 0 };
+let price = 70000;
 
-// BRUTAL: smart market
-function market(){
+let velocity = 0;
+let history = [];
 
-    // trend shift
-    if(Math.random()<0.1){
-        trend=Math.random()>0.5?1:-1;
+// ===== MARKET ENGINE =====
+function updateMarket() {
+
+    let force = (Math.random() - 0.5) * 2;
+
+    velocity += force * 0.3;
+    velocity *= 0.95;
+
+    price += velocity;
+
+}
+
+// ===== ORDER BOOK =====
+function getOrderBook() {
+
+    let bids = [];
+    let asks = [];
+
+    for(let i=1;i<=10;i++){
+
+        let spread = i * 2;
+
+        bids.push({
+            price: price - spread,
+            volume: Math.random()*2 + i*0.3
+        });
+
+        asks.push({
+            price: price + spread,
+            volume: Math.random()*2 + i*0.3
+        });
     }
 
-    let base=price*0.002;
-
-    let drift=base*trend;
-    let noise=base*(Math.random()-0.5);
-
-    price+=drift+noise;
+    return {bids, asks};
 }
 
-// BRUTAL: realistic orderbook
-function orderbook(){
-    let html="";
-    for(let i=1;i<=8;i++){
+// ===== RENDER ORDERBOOK =====
+function renderOrderBook() {
 
-        let spread=i*1.5;
+    let book = getOrderBook();
+    let html = "";
 
-        let ask=price+spread+Math.random();
-        let bid=price-spread-Math.random();
-
-        let vol=(Math.random()*0.5)+0.1;
-
-        html+=`<div class="row red">
-            <span>${ask.toFixed(2)}</span>
-            <span>${vol.toFixed(4)}</span>
+    // ASKS
+    book.asks.reverse().forEach(a=>{
+        html += `<div class="row red">
+            <span>${a.price.toFixed(2)}</span>
+            <span>${a.volume.toFixed(3)}</span>
         </div>`;
+    });
 
-        html+=`<div class="row green">
-            <span>${bid.toFixed(2)}</span>
-            <span>${vol.toFixed(4)}</span>
+    // MID
+    html += `<div style="text-align:center;padding:5px 0;">${price.toFixed(2)}</div>`;
+
+    // BIDS
+    book.bids.forEach(b=>{
+        html += `<div class="row green">
+            <span>${b.price.toFixed(2)}</span>
+            <span>${b.volume.toFixed(3)}</span>
         </div>`;
-    }
+    });
 
-    document.getElementById("order").innerHTML=html;
+    document.getElementById("orderbook").innerHTML = html;
 }
 
-// BRUTAL: tx engine
-function process(type,amt){
-
-    let delay=3000+Math.random()*10000;
-    let fail=Math.random()<0.12;
-    let slip=0.001+Math.random()*0.002;
-
-    log("Processing...");
-
-    setTimeout(()=>{
-
-        if(fail){
-            log("FAILED");
-            return;
-        }
-
-        if(type==="buy"){
-            if(amt>wallet.fiat){log("No balance");return;}
-            let real=price*(1+slip);
-            let btc=amt/real;
-
-            wallet.fiat-=amt;
-            wallet.btc+=btc;
-
-            log("BUY "+btc.toFixed(5)+" BTC");
-
-        }else{
-
-            if(amt>wallet.btc){log("No BTC");return;}
-
-            let real=price*(1-slip);
-            let usd=amt*real;
-
-            wallet.btc-=amt;
-            wallet.fiat+=usd;
-
-            log("SELL $"+usd.toFixed(2));
-        }
-
-        render();
-
-    },delay);
+// ===== IMPACT =====
+function applyImpact(vol) {
+    velocity += vol * 0.8;
 }
 
+// ===== TRADE =====
 function buy(){
-    let a=parseFloat(document.getElementById("amt").value);
-    if(a) process("buy",a);
+
+    let amt = parseFloat(document.getElementById("amount").value);
+    if(!amt || amt > wallet.usdt) return;
+
+    let slippage = 1 + Math.random()*0.002;
+    let btc = amt / (price * slippage);
+
+    wallet.usdt -= amt;
+    wallet.btc += btc;
+
+    applyImpact(btc);
+
+    log("BUY " + btc.toFixed(5) + " BTC");
 }
 
 function sell(){
-    let a=parseFloat(document.getElementById("amt").value);
-    if(a) process("sell",a);
+
+    let amt = parseFloat(document.getElementById("amount").value);
+    if(!amt || amt > wallet.btc) return;
+
+    let slippage = 1 - Math.random()*0.002;
+    let usdt = amt * price * slippage;
+
+    wallet.btc -= amt;
+    wallet.usdt += usdt;
+
+    applyImpact(-amt);
+
+    log("SELL " + usdt.toFixed(2) + " USDT");
 }
 
+// ===== HISTORY =====
 function log(t){
     history.push(t);
-    if(history.length>10)history.shift();
-    document.getElementById("history").innerHTML=history.join("<br>");
+    if(history.length > 8) history.shift();
+    document.getElementById("history").innerHTML = history.join("<br>");
 }
 
+// ===== UI =====
 function render(){
-    document.getElementById("price").innerHTML="$"+price.toFixed(2);
-    document.getElementById("balance").innerHTML=
-        "$"+wallet.fiat.toFixed(2)+" | "+wallet.btc.toFixed(5)+" BTC";
 
-    orderbook();
+    document.getElementById("price").innerHTML =
+        "$" + price.toFixed(2);
+
+    document.getElementById("balance").innerHTML =
+        wallet.usdt.toFixed(2) + " USDT<br>" +
+        wallet.btc.toFixed(5) + " BTC";
+
+    renderOrderBook();
 }
 
-// LOOP
+// ===== LOOP =====
 setInterval(()=>{
-    market();
+    updateMarket();
     render();
-},1500);
+},1000);
 
 render();
 
 </script>
+
 </body>
 </html>
