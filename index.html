@@ -36,7 +36,7 @@
 
         /* HEADER & UI COMPONENTS */
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .user-avatar { width: 32px; height: 32px; background-color: var(--bg-hover); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; color: var(--text-sub); cursor:pointer;}
+        .user-avatar { width: 32px; height: 32px; background-color: var(--bg-hover); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; color: var(--text-main); cursor:pointer;}
         .icon-btn { color: var(--text-sub); cursor: pointer; position: relative; }
         .badge-dot { position: absolute; top: 0; right: 0; width: 8px; height: 8px; background: var(--red-down); border-radius: 50%; border: 2px solid var(--bg-main); }
         
@@ -51,6 +51,9 @@
         .action-item:active .action-icon { transform: scale(0.95); background-color: var(--bg-hover); }
         .action-text { font-size: 12px; font-weight: 500; color: var(--text-main); }
 
+        /* GRAFIK TRADINGVIEW */
+        .chart-wrapper { width: 100%; height: 400px; margin-bottom: 24px; border-radius: 12px; overflow: hidden; background-color: var(--bg-card); border: 1px solid var(--border-color);}
+
         /* LISTS */
         .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
         .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border-color); }
@@ -63,7 +66,7 @@
         .price-text { font-weight: 600; font-size: 15px; text-align: right; }
         .asset-card { background: var(--bg-card); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;}
 
-        /* MENU PROFIL LENGKAP */
+        /* MENU PROFIL */
         .profile-menu { margin-top: 24px; }
         .menu-row { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: 0.2s;}
         .menu-row:active { opacity: 0.5; }
@@ -71,7 +74,7 @@
         .menu-text { flex-grow: 1; font-weight: 500; font-size: 15px;}
         .menu-arrow { color: var(--text-sub); }
 
-        /* MODAL MULTIGUNA & NETWORK SELECTOR */
+        /* MODAL MULTIGUNA & SELECTOR */
         .modal-overlay { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); justify-content: center; align-items: flex-end; z-index: 100; backdrop-filter: blur(4px);}
         .modal-content { background-color: var(--bg-card); width: 100%; padding: 24px; border-radius: 24px 24px 0 0; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-sizing: border-box;}
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -80,9 +83,8 @@
         .input-group:focus-within { border-color: var(--accent-yellow); }
         .modal-input { width: 100%; padding: 16px 0; background: transparent; border: none; color: var(--text-main); font-size: 16px; font-weight: 600; outline: none; font-family: 'Inter', sans-serif;}
         
-        /* Dropdown Jaringan */
-        .select-network { appearance: none; -webkit-appearance: none; width: 100%; background: transparent; color: var(--text-main); border: none; padding: 16px 0; font-size: 15px; font-weight: 500; outline: none;}
-        .select-network option { background: var(--bg-card); color: var(--text-main); }
+        .select-custom { appearance: none; -webkit-appearance: none; width: 100%; background: transparent; color: var(--text-main); border: none; padding: 16px 0; font-size: 15px; font-weight: 500; outline: none;}
+        .select-custom option { background: var(--bg-card); color: var(--text-main); }
 
         .btn-confirm { background-color: var(--accent-yellow); color: #000; border: none; padding: 16px; width: 100%; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;}
         .btn-close { background: transparent; color: var(--text-sub); border: none; padding: 16px; width: 100%; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px;}
@@ -133,18 +135,18 @@
             </div>
             <div class="notif-item">
                 <div class="notif-title">New Device Login</div>
-                <div class="notif-desc">We detected a login from a new IP Address (Vercel Client). If this was you, ignore this message.</div>
+                <div class="notif-desc">We detected a login from a new IP Address. If this was you, ignore this message.</div>
             </div>
             <div class="notif-item">
-                <div class="notif-title" style="color: var(--accent-yellow);">Welcome Bonus</div>
-                <div class="notif-desc">Congratulations! You received a mock bonus to test this prototype application.</div>
+                <div class="notif-title" style="color: var(--accent-yellow);">Welcome, Bayu!</div>
+                <div class="notif-desc">Your account has been successfully created and verified.</div>
             </div>
         </div>
 
         <div class="content-scroll">
             <div class="view active" id="view-home">
                 <div class="top-bar">
-                    <div class="user-avatar" onclick="pindahHalaman('view-profile', document.getElementById('nav-profile'))"><span class="material-symbols-outlined">person</span></div>
+                    <div class="user-avatar" onclick="pindahHalaman('view-profile', document.getElementById('nav-profile'))">BZ</div>
                     <div class="icon-btn" onclick="toggleNotif()">
                         <span class="material-symbols-outlined">notifications</span>
                         <div class="badge-dot"></div>
@@ -169,11 +171,31 @@
             </div>
 
             <div class="view" id="view-markets">
-                <div class="section-title" style="margin-bottom: 20px;">All Markets</div>
-                <div class="input-group" style="background: var(--bg-card);">
-                    <span class="material-symbols-outlined" style="color:var(--text-sub);">search</span>
-                    <input type="text" class="modal-input" placeholder="Search coin..." style="font-size: 14px; padding: 12px;">
+                <div class="section-title" style="margin-bottom: 16px;">Live Chart (BTC/USDT)</div>
+                
+                <div class="chart-wrapper">
+                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                    <script type="text/javascript">
+                        new TradingView.widget({
+                            "autosize": true,
+                            "symbol": "BINANCE:BTCUSDT",
+                            "interval": "15",
+                            "timezone": "Asia/Jakarta",
+                            "theme": "dark",
+                            "style": "1",
+                            "locale": "en",
+                            "backgroundColor": "#1e2329",
+                            "gridColor": "#2b3139",
+                            "enable_publishing": false,
+                            "hide_top_toolbar": false,
+                            "hide_legend": false,
+                            "save_image": false,
+                            "container_id": "tradingview_chart"
+                        });
+                    </script>
                 </div>
+
+                <div class="section-title" style="margin-bottom: 16px;">Market Prices</div>
                 <div id="full-market-list"></div>
             </div>
 
@@ -205,16 +227,19 @@
 
             <div class="view" id="view-profile">
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
-                    <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--accent-yellow); color: #000; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: 700;">BA</div>
-                    <div><div style="font-size: 20px; font-weight: 700;">Bro Asyik</div><div style="font-size: 13px; color: var(--text-sub);">UID: 98127391 • Verified</div></div>
+                    <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--accent-yellow); color: #000; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: 700;">BZ</div>
+                    <div>
+                        <div style="font-size: 20px; font-weight: 700;">BAYU RIZKI ZULFIKRI</div>
+                        <div style="font-size: 13px; color: var(--text-sub);">UID: 84719203 • Verified VIP</div>
+                    </div>
                 </div>
                 
                 <div class="profile-menu">
                     <div class="menu-row" onclick="munculToast('Identity Verification (KYC) is completed.', 'verified')"><span class="material-symbols-outlined menu-icon">badge</span><span class="menu-text">Identity Verification</span><span class="material-symbols-outlined menu-arrow" style="color: var(--green-up);">verified</span></div>
-                    <div class="menu-row" onclick="munculToast('Security settings locked in prototype.', 'security')"><span class="material-symbols-outlined menu-icon">security</span><span class="menu-text">Security</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
-                    <div class="menu-row" onclick="munculToast('No payment method linked.', 'account_balance')"><span class="material-symbols-outlined menu-icon">account_balance</span><span class="menu-text">Payment Methods</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
+                    <div class="menu-row" onclick="munculToast('Security settings active.', 'security')"><span class="material-symbols-outlined menu-icon">security</span><span class="menu-text">Security</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
+                    <div class="menu-row" onclick="munculToast('2 Bank Accounts & 1 E-Wallet linked.', 'account_balance')"><span class="material-symbols-outlined menu-icon">account_balance</span><span class="menu-text">Payment Methods</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
                     <div class="menu-row" onclick="munculToast('Language: English. Currency: USD.', 'language')"><span class="material-symbols-outlined menu-icon">language</span><span class="menu-text">Settings</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
-                    <div class="menu-row" onclick="munculToast('Connecting to Customer Service...', 'support_agent')"><span class="material-symbols-outlined menu-icon">support_agent</span><span class="menu-text">Help & Support</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
+                    <div class="menu-row" onclick="munculToast('Connecting to VIP Support...', 'support_agent')"><span class="material-symbols-outlined menu-icon">support_agent</span><span class="menu-text">Help & Support</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
                     <div class="menu-row" onclick="resetSaldo()"><span class="material-symbols-outlined menu-icon" style="color: var(--red-down);">delete_forever</span><span class="menu-text" style="color: var(--red-down);">Reset Account Data</span></div>
                 </div>
             </div>
@@ -235,8 +260,19 @@
                 <div class="modal-title" id="modalTitle">Action</div>
                 <div class="modal-subtitle" id="modalSubtitle">Info</div>
                 
+                <div class="input-group" id="paymentMethodGroup" style="display: none;">
+                    <span class="material-symbols-outlined" style="color: var(--text-sub); margin-right: 10px;">account_balance</span>
+                    <select class="select-custom" id="inputPaymentMethod">
+                        <option value="Bank Transfer (VA)">Bank Transfer (Virtual Account)</option>
+                        <option value="Credit / Debit Card">Credit / Debit Card</option>
+                        <option value="E-Wallet (OVO/Dana/GoPay)">E-Wallet (OVO/Dana/GoPay)</option>
+                        <option value="P2P Trading">P2P Trading</option>
+                    </select>
+                </div>
+
                 <div class="input-group" id="networkGroup" style="display: none;">
-                    <select class="select-network" id="inputNetwork">
+                    <span class="material-symbols-outlined" style="color: var(--text-sub); margin-right: 10px;">hub</span>
+                    <select class="select-custom" id="inputNetwork">
                         <option value="TRC20">Tron (TRC20)</option>
                         <option value="BEP20">BNB Smart Chain (BEP20)</option>
                         <option value="ERC20">Ethereum (ERC20)</option>
@@ -265,19 +301,16 @@
     </div>
 
     <script>
-        // --- SISTEM TOAST NOTIFICATION (MENGGANTIKAN ALERT) ---
+        // --- SISTEM TOAST NOTIFICATION ---
         function munculToast(pesan, ikon = 'info') {
             const box = document.getElementById('toastBox');
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.innerHTML = `<span class="material-symbols-outlined toast-icon">${ikon}</span><div class="toast-text">${pesan}</div>`;
-            
             box.appendChild(toast);
-
-            // Hilangkan toast setelah 3 detik
             setTimeout(() => {
                 toast.classList.add('toast-out');
-                setTimeout(() => toast.remove(), 400); // Tunggu animasi fadeout selesai
+                setTimeout(() => toast.remove(), 400); 
             }, 3000);
         }
 
@@ -286,11 +319,9 @@
             const panel = document.getElementById('notifPanel');
             const overlay = document.getElementById('notifOverlay');
             if (panel.classList.contains('open')) {
-                panel.classList.remove('open');
-                overlay.style.display = 'none';
+                panel.classList.remove('open'); overlay.style.display = 'none';
             } else {
-                panel.classList.add('open');
-                overlay.style.display = 'block';
+                panel.classList.add('open'); overlay.style.display = 'block';
             }
         }
 
@@ -334,7 +365,7 @@
         }
 
         function resetSaldo() { 
-            if(confirm("This will erase all your prototype data. Continue?")) { 
+            if(confirm("Mas Bayu, yakin ingin menghapus seluruh data dan history transaksi?")) { 
                 localStorage.clear(); window.location.reload(); 
             } 
         }
@@ -388,6 +419,7 @@
 
         // --- MODAL & LOGIKA TRANSAKSI ---
         function resetModal() {
+            document.getElementById('paymentMethodGroup').style.display = 'none';
             document.getElementById('inputAddressGroup').style.display = 'none';
             document.getElementById('networkGroup').style.display = 'none';
             document.getElementById('inputAddress').value = "";
@@ -399,8 +431,12 @@
         function bukaModalDeposit() {
             tipeAksi = "Deposit"; resetModal();
             document.getElementById('modalTitle').innerText = "Deposit Fiat (USD)";
-            document.getElementById('modalSubtitle').innerText = "Fund your account using Bank Transfer.";
+            document.getElementById('modalSubtitle').innerText = "Select your preferred payment method.";
             document.getElementById('currencyLabel').innerText = "USD";
+            
+            // Tampilkan Dropdown Metode Pembayaran
+            document.getElementById('paymentMethodGroup').style.display = 'flex';
+            
             document.getElementById('actionModal').style.display = 'flex';
         }
 
@@ -410,7 +446,6 @@
             document.getElementById('modalSubtitle').innerText = `Available: ${saldoBTC.toFixed(6)} BTC`;
             document.getElementById('currencyLabel').innerText = "BTC";
             
-            // Tampilkan Network & Address Selector
             document.getElementById('networkGroup').style.display = 'flex';
             document.getElementById('inputAddressGroup').style.display = 'flex'; 
             
@@ -437,9 +472,11 @@
             setTimeout(() => {
                 let riwayat = "";
                 if (tipeAksi === 'Deposit') {
+                    let metode = document.getElementById('inputPaymentMethod').value;
                     saldoUSD += input;
-                    munculToast(`Success! $${input.toLocaleString()} deposited.`, "check_circle");
-                    riwayat = buatRiwayat('payments', 'Deposit Fiat', `+$${input.toLocaleString()}`, 'var(--green-up)');
+                    munculToast(`Success! $${input.toLocaleString()} deposited via ${metode}`, "check_circle");
+                    riwayat = buatRiwayat('payments', `Deposit (${metode})`, `+$${input.toLocaleString()}`, 'var(--green-up)');
+                
                 } else if (tipeAksi === 'Withdraw') {
                     let addr = document.getElementById('inputAddress').value;
                     let network = document.getElementById('inputNetwork').value;
@@ -448,12 +485,14 @@
                     saldoBTC -= input;
                     munculToast(`Sent ${input} BTC via ${network}`, "send");
                     riwayat = buatRiwayat('send', `Withdraw (${network})`, `-${input} BTC`, 'var(--text-main)');
+                
                 } else if (tipeAksi === 'Beli') {
                     if (input > saldoUSD) { munculToast("Insufficient USD balance!", "error"); resetModal(); return; }
                     let dptBtc = input / btcPriceReal;
                     saldoUSD -= input; saldoBTC += dptBtc;
                     munculToast(`Order Filled: +${dptBtc.toFixed(6)} BTC`, "check_circle");
                     riwayat = buatRiwayat('shopping_cart', 'Buy BTC', `+${dptBtc.toFixed(6)} BTC`, 'var(--green-up)');
+                
                 } else if (tipeAksi === 'Jual') {
                     if (input > saldoBTC) { munculToast("Insufficient BTC balance!", "error"); resetModal(); return; }
                     let dptUsd = input * btcPriceReal;
@@ -472,7 +511,7 @@
             return `<div class="list-item"><div class="item-left"><div class="coin-icon" style="background: var(--bg-hover);"><span class="material-symbols-outlined">${icon}</span></div><div><div class="coin-name">${title}</div><div class="coin-symbol">Completed</div></div></div><div class="price-text" style="color: ${color};">${amount}</div></div>`;
         }
 
-        setInterval(ambilDataPasar, 30000);
+        setInterval(ambilDataPasar, 10000);
     </script>
 </body>
 </html>
