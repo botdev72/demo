@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Exchange Wallet</title>
+    
+    <meta name="theme-color" content="#0b0e11">
+    
+    <style>
+        /* TEMA DARK MODE KHAS BINANCE / EXCHANGE BESAR */
+        :root {
+            --bg-main: #0b0e11;
+            --bg-card: #181a20;
+            --text-main: #eaecef;
+            --text-sub: #848e9c;
+            --accent-yellow: #fcd535;
+            --accent-hover: #e0bd2e;
+            --green-up: #0ecb81;
+            --red-down: #f6465d;
+            --border-color: #2b3139;
+        }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
+        
+        /* Kontainer Utama */
+        .app-container { width: 100%; max-width: 480px; height: 100vh; background-color: var(--bg-main); position: relative; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5);}
+        .content-scroll { overflow-y: auto; flex-grow: 1; padding-bottom: 80px; }
+        
+        /* Layout Grid untuk Desktop jika dibuka di layar lebar */
+        @media (min-width: 768px) {
+            body { padding: 20px; background-color: #000; }
+            .app-container { max-width: 900px; height: 90vh; border-radius: 24px; border: 1px solid var(--border-color); flex-direction: row; }
+            .content-scroll { padding-bottom: 0; display: flex; width: 100%; }
+            .column { width: 50%; height: 100%; overflow-y: auto; padding-bottom: 80px; }
+            .column:first-child { border-right: 1px solid var(--border-color); }
+            .bottom-nav { border-radius: 0 0 24px 24px; }
+        }
+
+        /* Sistem Tab Halaman */
+        .view { display: none; width: 100%; animation: fadeIn 0.4s ease; padding: 20px; box-sizing: border-box;}
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Komponen Header & Saldo */
+        .header-card { background-color: var(--bg-card); border-radius: 16px; padding: 24px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .balance-label { font-size: 14px; color: var(--text-sub); display: flex; justify-content: space-between; align-items: center;}
+        .balance-amount { font-size: 32px; font-weight: bold; margin: 8px 0; color: var(--text-main); }
+        .balance-btc { font-size: 14px; color: var(--text-sub); }
+
+        /* Tombol Aksi */
+        .actions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+        .action-btn-wrapper { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+        .action-icon { width: 48px; height: 48px; background-color: var(--bg-card); border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 20px; transition: background 0.2s; border: 1px solid var(--border-color); color: var(--accent-yellow);}
+        .action-btn-wrapper:hover .action-icon { background-color: #2b3139; }
+        .action-text { font-size: 12px; font-weight: 500; color: var(--text-main); }
+
+        /* Daftar Koin / Riwayat */
+        .section-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--text-main); }
+        .list-card { background-color: var(--bg-card); border-radius: 16px; padding: 10px 16px; border: 1px solid var(--border-color); margin-bottom: 15px;}
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .list-item:last-child { border-bottom: none; }
+        .item-left { display: flex; align-items: center; gap: 12px; }
+        .coin-icon { width: 32px; height: 32px; border-radius: 50%; background-color: #2b3139; display: flex; justify-content: center; align-items: center; font-size: 16px; }
+        .coin-name { font-weight: 600; font-size: 14px; color: var(--text-main); }
+        .coin-symbol { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
+        .item-right { text-align: right; }
+        .price-text { font-weight: 600; font-size: 14px; color: var(--text-main); }
+        .price-up { color: var(--green-up); font-size: 12px; font-weight: 500; margin-top: 4px; }
+        .price-down { color: var(--red-down); font-size: 12px; font-weight: 500; margin-top: 4px; }
+
+        /* Grafik TradingView */
+        .chart-wrapper { width: 100%; height: 350px; background-color: var(--bg-card); border-radius: 16px; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--border-color); }
+
+        /* Navigasi Bawah */
+        .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; background-color: var(--bg-card); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0 20px 0; z-index: 10; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--text-sub); cursor: pointer; gap: 6px; font-weight: 500;}
+        .nav-item.active { color: var(--accent-yellow); }
+        .nav-icon { font-size: 20px; }
+
+        /* Modal Transaksi */
+        .modal-overlay { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); justify-content: center; align-items: flex-end; z-index: 100; backdrop-filter: blur(2px);}
+        .modal-content { background-color: var(--bg-card); width: 100%; padding: 24px; border-radius: 24px 24px 0 0; border-top: 1px solid var(--border-color); animation: slideUp 0.3s ease; box-sizing: border-box;}
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-title { font-size: 20px; font-weight: bold; margin-bottom: 8px; color: var(--text-main);}
+        .modal-subtitle { color: var(--text-sub); font-size: 14px; margin-bottom: 20px;}
+        .modal-input { width: 100%; padding: 16px; margin-bottom: 12px; background-color: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; font-size: 20px; box-sizing: border-box; outline: none; transition: border 0.2s;}
+        .modal-input:focus { border-color: var(--accent-yellow); }
+        .btn-confirm { background-color: var(--accent-yellow); color: #000; border: none; padding: 16px; width: 100%; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px;}
+        .btn-close { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); padding: 16px; width: 100%; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px;}
+        
+        /* Halaman Profil */
+        .profile-header { text-align: center; margin-bottom: 30px; }
+        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background-color: var(--accent-yellow); color: #000; display: inline-flex; justify-content: center; align-items: center; font-size: 32px; font-weight: bold; margin-bottom: 12px; }
+        .profile-name { font-size: 20px; font-weight: bold; color: var(--text-main); }
+        .menu-item { display: flex; justify-content: space-between; padding: 16px; background-color: var(--bg-card); border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); cursor: pointer; color: var(--text-main); font-weight: 500;}
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div class="content-scroll" id="main-content">
+            
+            <div class="column view active" id="view-home">
+                <div class="header-card">
+                    <div class="balance-label">Estimasi Saldo Total <span style="background:var(--accent-yellow); color:#000; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:bold;">PRO</span></div>
+                    <div class="balance-amount" id="saldo-usd">$0.00</div>
+                    <div class="balance-btc" id="saldo-btc">≈ 0.000000 BTC</div>
+                </div>
+
+                <div class="actions-grid">
+                    <div class="action-btn-wrapper" onclick="bukaModal('Beli')"><div class="action-icon">🛒</div><div class="action-text">Beli</div></div>
+                    <div class="action-btn-wrapper" onclick="bukaModal('Jual')"><div class="action-icon">💸</div><div class="action-text">Jual</div></div>
+                    <div class="action-btn-wrapper" onclick="alert('Fitur Deposit Fiat dalam perbaikan.')"><div class="action-icon">💳</div><div class="action-text">Deposit</div></div>
+                    <div class="action-btn-wrapper" onclick="alert('Alamat BTC Anda: 1FfmbHfnpaZjKFvyi1okTjJJusN455paPH')"><div class="action-icon">📥</div><div class="action-text">Terima</div></div>
+                </div>
+
+                <div class="section-title">Riwayat Transaksi Terakhir</div>
+                <div class="list-card" id="riwayat-container">
+                    <div class="list-item">
+                        <div class="item-left"><div class="coin-icon">🎁</div><div><div class="coin-name">Bonus Pengguna Baru</div><div class="coin-symbol">Sistem Vercel</div></div></div>
+                        <div class="item-right"><div class="price-text" style="color: var(--green-up);">+$10,000.00</div><div class="coin-symbol">Berhasil</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column view" id="view-market">
+                <div class="section-title">Pasar (BTC/USDT)</div>
+                
+                <div class="chart-wrapper">
+                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                    <script type="text/javascript">
+                        new TradingView.widget({
+                            "autosize": true,
+                            "symbol": "BINANCE:BTCUSDT",
+                            "interval": "15",
+                            "timezone": "Asia/Jakarta",
+                            "theme": "dark", // Tema diubah menjadi gelap!
+                            "style": "1",
+                            "locale": "id",
+                            "enable_publishing": false,
+                            "hide_top_toolbar": true,
+                            "save_image": false,
+                            "container_id": "tradingview_chart"
+                        });
+                    </script>
+                </div>
+
+                <div class="section-title">Harga Crypto Terkini</div>
+                <div class="list-card" id="market-list-container">
+                    <div style="text-align: center; padding: 20px; color: var(--text-sub);">Menarik data dari API...</div>
+                </div>
+            </div>
+
+            <div class="column view" id="view-profile">
+                <div class="profile-header">
+                    <div class="profile-avatar">BA</div>
+                    <div class="profile-name">Bro Asyik</div>
+                    <div style="color: var(--text-sub); font-size: 14px; margin-top: 4px;">bro.asyik@vercel.app</div>
+                </div>
+                
+                <div class="menu-item" onclick="resetSaldo()"><div>Reset Saldo ke Awal</div><div style="color: var(--red-down);">⚠️</div></div>
+                <div class="menu-item"><div>Keamanan & Verifikasi KYC</div><div>🛡️</div></div>
+                <div class="menu-item"><div>Pengaturan Tema</div><div>🌙</div></div>
+                <div class="menu-item"><div>Bantuan Pusat</div><div>🎧</div></div>
+            </div>
+
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="pindahHalaman('view-home', this)"><div class="nav-icon">🏠</div>Home</div>
+            <div class="nav-item" onclick="pindahHalaman('view-market', this)"><div class="nav-icon">📊</div>Pasar</div>
+            <div class="nav-item" onclick="bukaModal('Beli')"><div class="nav-icon">💱</div>Tukar</div>
+            <div class="nav-item" onclick="pindahHalaman('view-profile', this)"><div class="nav-icon">👤</div>Profil</div>
+        </div>
+
+        <div class="modal-overlay" id="actionModal">
+            <div class="modal-content">
+                <div class="modal-title" id="modalTitle">Aksi</div>
+                <div class="modal-subtitle" id="modalSubtitle">Instruksi...</div>
+                
+                <input type="number" class="modal-input" id="inputJumlah" placeholder="Masukkan jumlah nominal..." step="any">
+                <div id="infoHargaBtc" style="font-size: 12px; color: var(--accent-yellow); margin-bottom: 10px; text-align: right;">Memuat harga...</div>
+                
+                <button class="btn-confirm" onclick="prosesTransaksi()">Konfirmasi Order</button>
+                <button class="btn-close" onclick="tutupModal()">Batal</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 1. SETUP DATABASE LOKAL (LocalStorage) ---
+        let saldoUSD = 0;
+        let saldoBTC = 0;
+        let btcPriceReal = 60000; 
+        let jenisAksiSaatIni = "";
+
+        // Fungsi memuat data dari memori browser
+        function inisialisasiDatabase() {
+            // Mengecek apakah sebelumnya user sudah punya data saldo di browser ini
+            let simpananUSD = localStorage.getItem("app_saldoUSD");
+            let simpananBTC = localStorage.getItem("app_saldoBTC");
+
+            if (simpananUSD !== null && simpananBTC !== null) {
+                // Jika ada, pakai data lama
+                saldoUSD = parseFloat(simpananUSD);
+                saldoBTC = parseFloat(simpananBTC);
+            } else {
+                // Jika baru pertama kali buka web ini, berikan saldo bonus!
+                saldoUSD = 10000.00;
+                saldoBTC = 0.5000;
+                simpanKeDatabase(); // Simpan bonus ini ke browser
+            }
+            updateTampilanSaldo();
+        }
+
+        // Fungsi menyimpan data ke memori browser
+        function simpanKeDatabase() {
+            localStorage.setItem("app_saldoUSD", saldoUSD);
+            localStorage.setItem("app_saldoBTC", saldoBTC);
+        }
+
+        // Fungsi reset saldo (Di halaman profil)
+        function resetSaldo() {
+            if(confirm("Yakin ingin menghapus seluruh riwayat dan mereset saldo ke awal?")) {
+                localStorage.removeItem("app_saldoUSD");
+                localStorage.removeItem("app_saldoBTC");
+                alert("Data berhasil direset!");
+                window.location.reload(); // Muat ulang halaman
+            }
+        }
+
+        // --- 2. SISTEM NAVIGASI (RESPONSIF) ---
+        function pindahHalaman(idHalaman, elemenTombol) {
+            // Logika untuk Mobile (layar kecil)
+            if (window.innerWidth < 768) {
+                document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+                document.getElementById(idHalaman).classList.add('active');
+            } else {
+                // Jika Desktop, jangan sembunyikan layar, karena desainnya 2 kolom
+                if(idHalaman === 'view-profile') {
+                    // Jika profil ditekan di desktop, timpa kolom kanan
+                    document.getElementById('view-market').classList.remove('active');
+                    document.getElementById('view-profile').classList.add('active');
+                } else if (idHalaman === 'view-market') {
+                    document.getElementById('view-profile').classList.remove('active');
+                    document.getElementById('view-market').classList.add('active');
+                }
+            }
+
+            // Update warna ikon aktif
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            if(elemenTombol) elemenTombol.classList.add('active');
+        }
+
+        // Paksa layout desktop saat layar di-resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                document.getElementById('view-home').classList.add('active');
+                document.getElementById('view-market').classList.add('active');
+            }
+        });
+
+        // --- 3. AMBIL DATA PASAR (API COINGECKO) ---
+        async function ambilDataPasar() {
+            try {
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,solana&vs_currencies=usd&include_24hr_change=true');
+                const data = await response.json();
+
+                if(data.bitcoin && data.bitcoin.usd) btcPriceReal = data.bitcoin.usd;
+                tampilkanDaftarPasar(data);
+            } catch (error) {
+                console.error("Gagal load API", error);
+            }
+        }
+
+        function tampilkanDaftarPasar(data) {
+            const koinList = [
+                { id: 'bitcoin', nama: 'Bitcoin', simbol: 'BTC', ikon: '₿' },
+                { id: 'ethereum', nama: 'Ethereum', simbol: 'ETH', ikon: '⬨' },
+                { id: 'binancecoin', nama: 'BNB', simbol: 'BNB', ikon: '🔶' },
+                { id: 'solana', nama: 'Solana', simbol: 'SOL', ikon: '◎' }
+            ];
+
+            let htmlKonten = "";
+            koinList.forEach(koin => {
+                if (data[koin.id]) {
+                    let harga = data[koin.id].usd.toLocaleString('en-US', {minimumFractionDigits: 2});
+                    let persen = data[koin.id].usd_24h_change;
+                    let kelas = persen >= 0 ? 'price-up' : 'price-down';
+                    htmlKonten += `
+                    <div class="list-item">
+                        <div class="item-left"><div class="coin-icon">${koin.ikon}</div><div><div class="coin-name">${koin.nama}</div><div class="coin-symbol">${koin.simbol}</div></div></div>
+                        <div class="item-right"><div class="price-text">$${harga}</div><div class="${kelas}">${persen >= 0 ? '+' : ''}${persen.toFixed(2)}%</div></div>
+                    </div>`;
+                }
+            });
+            document.getElementById('market-list-container').innerHTML = htmlKonten;
+        }
+
+        // --- 4. LOGIKA BELI / JUAL ---
+        function updateTampilanSaldo() {
+            document.getElementById('saldo-usd').innerText = "$" + saldoUSD.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('saldo-btc').innerText = "≈ " + saldoBTC.toFixed(6) + " BTC";
+        }
+
+        function bukaModal(jenis) {
+            jenisAksiSaatIni = jenis;
+            document.getElementById('modalTitle').innerText = jenis + " Bitcoin (BTC)";
+            document.getElementById('modalSubtitle').innerText = jenis === 'Beli' ? `Saldo USD Anda: $${saldoUSD.toLocaleString('en-US')}` : `Saldo BTC Anda: ${saldoBTC.toFixed(6)}`;
+            document.getElementById('infoHargaBtc').innerText = `1 BTC = $${btcPriceReal.toLocaleString('en-US')}`;
+            document.getElementById('inputJumlah').value = ""; 
+            document.getElementById('actionModal').style.display = 'flex';
+        }
+
+        function tutupModal() { document.getElementById('actionModal').style.display = 'none'; }
+
+        function prosesTransaksi() {
+            let input = parseFloat(document.getElementById('inputJumlah').value);
+            if (isNaN(input) || input <= 0) { alert("Angka tidak valid!"); return; }
+
+            let riwayat = "";
+            if (jenisAksiSaatIni === 'Beli') {
+                if (input > saldoUSD) { alert("Saldo USD tidak cukup!"); return; }
+                let dptBtc = input / btcPriceReal;
+                saldoUSD -= input; saldoBTC += dptBtc;
+                alert(`Order Beli Terisi: +${dptBtc.toFixed(6)} BTC`);
+                riwayat = `<div class="list-item"><div class="item-left"><div class="coin-icon" style="color:var(--red-down);">🛒</div><div><div class="coin-name">Beli Market</div><div class="coin-symbol">BTC/USDT</div></div></div><div class="item-right"><div class="price-text">-$${input.toFixed(2)}</div><div class="price-up">Selesai</div></div></div>`;
+            } else {
+                if (input > saldoBTC) { alert("Saldo BTC tidak cukup!"); return; }
+                let dptUsd = input * btcPriceReal;
+                saldoBTC -= input; saldoUSD += dptUsd;
+                alert(`Order Jual Terisi: +$${dptUsd.toFixed(2)}`);
+                riwayat = `<div class="list-item"><div class="item-left"><div class="coin-icon" style="color:var(--green-up);">💸</div><div><div class="coin-name">Jual Market</div><div class="coin-symbol">BTC/USDT</div></div></div><div class="item-right"><div class="price-text">+$${dptUsd.toFixed(2)}</div><div class="price-up">Selesai</div></div></div>`;
+            }
+
+            document.getElementById('riwayat-container').insertAdjacentHTML('afterbegin', riwayat);
+            updateTampilanSaldo();
+            simpanKeDatabase(); // Jangan lupa simpan ke browser!
+            tutupModal();
+        }
+
+        // --- 5. JALANKAN APLIKASI ---
+        inisialisasiDatabase();
+        ambilDataPasar();
+        setInterval(ambilDataPasar, 30000); 
+        
+        // Memastikan desktop layout benar saat awal dibuka
+        if (window.innerWidth >= 768) { document.getElementById('view-market').classList.add('active'); }
+    </script>
+</body>
+</html>
