@@ -1,221 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crypto Simulator</title>
-
+<title>PATCH MODE</title>
 <style>
-body {
-    margin:0;
-    font-family: Arial;
-    background:#0b0e11;
-    color:white;
-}
-.container {
-    max-width:480px;
-    margin:auto;
-    padding:16px;
-}
-.card {
-    background:#1e2329;
-    padding:16px;
-    border-radius:12px;
-    margin-bottom:16px;
-}
-button {
-    padding:10px;
-    border:none;
-    border-radius:8px;
-    background:#fcd535;
-    cursor:pointer;
-}
-.row { display:flex; justify-content:space-between; margin-bottom:8px;}
-.green{color:#0ecb81}
-.red{color:#f6465d}
-canvas{width:100%; height:200px; background:#111;}
+body{background:#0b0e11;color:white;font-family:Arial}
+.container{max-width:480px;margin:auto;padding:16px}
+.card{background:#1e2329;padding:16px;margin-bottom:12px;border-radius:10px}
+.row{display:flex;justify-content:space-between}
+.green{color:#0ecb81}.red{color:#f6465d}
 </style>
 </head>
-
 <body>
 
 <div class="container">
-
 <div class="card">
-<h2>Balance</h2>
-<div id="balance">$5000</div>
+<h3>Balance</h3>
+<div id="balance"></div>
 </div>
 
 <div class="card">
-<h3>BTC Price</h3>
+<h3>BTC</h3>
 <div id="price"></div>
-<canvas id="chart"></canvas>
 </div>
 
 <div class="card">
 <h3>Order Book</h3>
-<div id="orderbook"></div>
+<div id="order"></div>
 </div>
-
-<div class="card">
-<h3>Trade</h3>
-<input id="amount" placeholder="USD Amount">
-<button onclick="buy()">Buy BTC</button>
-<button onclick="sell()">Sell BTC</button>
-</div>
-
-<div class="card">
-<h3>History</h3>
-<div id="history"></div>
-</div>
-
 </div>
 
 <script>
 
-// ===== STATE =====
-let wallet = { fiat:5000, btc:0 };
+let wallet = {fiat:5000,btc:0};
 let price = 70000;
-let history = [];
-let candles = [];
-let trend = 1;
 
-// ===== MARKET ENGINE =====
-function marketTick(){
-    let vol = 0.002;
-    
-    // trend berubah tiap beberapa waktu
-    if(Math.random()<0.05){
-        trend = Math.random()>0.5 ? 1 : -1;
-    }
-
-    let change = price * vol * trend * Math.random();
-    price += change;
-
-    generateCandle();
-    render();
+// PATCH: simple trend
+function market(){
+    let drift = price * 0.001 * (Math.random()>0.5?1:-1);
+    let noise = price * 0.001 * (Math.random()-0.5);
+    price += drift + noise;
 }
 
-// ===== CANDLE =====
-function generateCandle(){
-    let last = candles[candles.length-1];
-
-    let open = last ? last.close : price;
-    let close = price;
-    let high = Math.max(open,close) + Math.random()*50;
-    let low = Math.min(open,close) - Math.random()*50;
-
-    candles.push({open,high,low,close});
-    if(candles.length>30) candles.shift();
-}
-
-// ===== CHART =====
-function drawChart(){
-    let c = document.getElementById('chart');
-    let ctx = c.getContext('2d');
-    ctx.clearRect(0,0,c.width,c.height);
-
-    let w = c.width;
-    let h = c.height;
-
-    let max = Math.max(...candles.map(x=>x.high));
-    let min = Math.min(...candles.map(x=>x.low));
-
-    candles.forEach((cd,i)=>{
-        let x = i*(w/candles.length);
-
-        let openY = h - ((cd.open-min)/(max-min))*h;
-        let closeY = h - ((cd.close-min)/(max-min))*h;
-        let highY = h - ((cd.high-min)/(max-min))*h;
-        let lowY = h - ((cd.low-min)/(max-min))*h;
-
-        ctx.strokeStyle = cd.close>cd.open ? "#0ecb81" : "#f6465d";
-
-        ctx.beginPath();
-        ctx.moveTo(x,highY);
-        ctx.lineTo(x,lowY);
-        ctx.stroke();
-
-        ctx.fillRect(x-2,openY,4,closeY-openY);
-    });
-}
-
-// ===== ORDER BOOK =====
-function renderOrderBook(){
-    let html = "";
+// PATCH: better orderbook
+function orderbook(){
+    let html="";
     for(let i=1;i<=5;i++){
-        let ask = price + i*10;
-        let bid = price - i*10;
-        html += `<div class="row red"><span>${ask.toFixed(2)}</span><span>${Math.random().toFixed(3)}</span></div>`;
-        html += `<div class="row green"><span>${bid.toFixed(2)}</span><span>${Math.random().toFixed(3)}</span></div>`;
+        let spread=i*2;
+        html+=`<div class="row red"><span>${(price+spread).toFixed(2)}</span><span>${Math.random().toFixed(3)}</span></div>`;
+        html+=`<div class="row green"><span>${(price-spread).toFixed(2)}</span><span>${Math.random().toFixed(3)}</span></div>`;
     }
-    document.getElementById('orderbook').innerHTML = html;
-}
-
-// ===== TRANSACTION =====
-function processTx(type, amt){
-    let delay = 2000 + Math.random()*5000;
-    let fail = Math.random()<0.1;
-
-    addHistory("Processing...");
-
-    setTimeout(()=>{
-        if(fail){
-            addHistory("FAILED");
-            return;
-        }
-
-        let slippage = 1 + (Math.random()*0.002);
-
-        if(type==="buy"){
-            let btc = amt/(price*slippage);
-            wallet.fiat -= amt;
-            wallet.btc += btc;
-            addHistory(`BUY ${btc.toFixed(4)} BTC`);
-        }else{
-            let usd = amt*price*(1-slippage);
-            wallet.btc -= amt;
-            wallet.fiat += usd;
-            addHistory(`SELL ${usd.toFixed(2)} USD`);
-        }
-
-        render();
-    }, delay);
-}
-
-// ===== ACTION =====
-function buy(){
-    let amt = parseFloat(document.getElementById('amount').value);
-    if(amt>wallet.fiat) return alert("no balance");
-    processTx("buy",amt);
-}
-
-function sell(){
-    let amt = parseFloat(document.getElementById('amount').value);
-    if(amt>wallet.btc) return alert("no btc");
-    processTx("sell",amt);
-}
-
-// ===== UI =====
-function addHistory(txt){
-    history.push(txt);
-    if(history.length>10) history.shift();
-    document.getElementById('history').innerHTML = history.join("<br>");
+    document.getElementById("order").innerHTML=html;
 }
 
 function render(){
-    document.getElementById('price').innerHTML = "$"+price.toFixed(2);
-    document.getElementById('balance').innerHTML =
+    document.getElementById("price").innerHTML="$"+price.toFixed(2);
+    document.getElementById("balance").innerHTML=
         "$"+wallet.fiat.toFixed(2)+" | "+wallet.btc.toFixed(4)+" BTC";
-
-    renderOrderBook();
-    drawChart();
+    orderbook();
 }
 
-// ===== LOOP =====
-setInterval(marketTick,1000);
+setInterval(()=>{
+    market();
+    render();
+},1500);
+
+render();
 
 </script>
-
 </body>
 </html>
