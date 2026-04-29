@@ -99,8 +99,8 @@
         
         .input-group { background-color: var(--bg-main); border: 1px solid var(--border-color); border-radius: 12px; display: flex; align-items: center; padding: 0 16px; margin-bottom: 16px; }
         
+        /* KEMBALI KE INPUT NORMAL AGAR NATIVE KEYBOARD MUNCUL */
         .modal-input { width: 100%; padding: 16px 0; background: transparent; border: none; color: var(--text-main); font-size: 16px; font-weight: 600; outline: none; }
-        .modal-input.custom-kb { cursor: pointer; caret-color: transparent; }
 
         .select-custom { appearance: none; width: 100%; background: transparent; color: var(--text-main); border: none; padding: 16px 0; font-size: 15px; font-weight: 500; outline: none;}
         .select-custom option { background: var(--bg-card); color: var(--text-main); }
@@ -129,14 +129,6 @@
         input:checked + .slider:before { transform: translateX(20px); }
 
         #avatar-upload { display: none; }
-
-        /* CUSTOM IN-APP NUMPAD */
-        #custom-numpad { position: fixed; bottom: -100%; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--bg-card); z-index: 1000; padding: 20px 20px 30px 20px; box-sizing: border-box; transition: bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-top: 1px solid var(--border-color); border-radius: 24px 24px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.5);}
-        #custom-numpad.open { bottom: 0; }
-        .numpad-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; color:var(--text-sub); font-weight:600; font-size:14px;}
-        .numpad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .num-key { background: var(--bg-main); border-radius: 12px; padding: 16px; text-align: center; font-size: 24px; font-weight: 600; cursor: pointer; transition: 0.1s;}
-        .num-key:active { background: var(--bg-hover); transform: scale(0.95); }
     </style>
 </head>
 <body>
@@ -146,20 +138,6 @@
 
     <div class="app-container">
         
-        <div id="custom-numpad">
-            <div class="numpad-header">
-                <span>Enter Amount</span>
-                <span class="material-symbols-outlined" onclick="closeNumpad()" style="cursor:pointer; color:var(--accent-yellow);">keyboard_hide</span>
-            </div>
-            <div class="numpad-grid">
-                <div class="num-key" onclick="typeNumpad('1')">1</div><div class="num-key" onclick="typeNumpad('2')">2</div><div class="num-key" onclick="typeNumpad('3')">3</div>
-                <div class="num-key" onclick="typeNumpad('4')">4</div><div class="num-key" onclick="typeNumpad('5')">5</div><div class="num-key" onclick="typeNumpad('6')">6</div>
-                <div class="num-key" onclick="typeNumpad('7')">7</div><div class="num-key" onclick="typeNumpad('8')">8</div><div class="num-key" onclick="typeNumpad('9')">9</div>
-                <div class="num-key" onclick="typeNumpad('.')">.</div><div class="num-key" onclick="typeNumpad('0')">0</div><div class="num-key" onclick="typeNumpad('backspace')"><span class="material-symbols-outlined">backspace</span></div>
-            </div>
-            <button class="btn-confirm" style="margin-top:16px;" onclick="closeNumpad()">Done</button>
-        </div>
-
         <div id="pin-screen" style="display:none;">
             <div class="splash-logo"><span class="material-symbols-outlined" style="font-size: 40px;">lock</span></div>
             <h2 style="margin:0; font-size: 20px;">Enter App PIN</h2>
@@ -243,7 +221,7 @@
                 <div class="section-title">All Markets</div>
                 <div class="input-group" style="background: var(--bg-card); margin-bottom: 16px;">
                     <span class="material-symbols-outlined" style="color:var(--text-sub);">search</span>
-                    <input type="text" class="modal-input" id="searchInput" placeholder="Search 50+ coins..." style="font-size: 14px; padding: 12px;" onkeyup="cariKoin()">
+                    <input type="text" class="modal-input" id="searchInput" placeholder="Search 50+ coins..." style="font-size: 14px; padding: 12px;" onkeyup="cariKoin()" autocomplete="off">
                 </div>
 
                 <div id="full-market-list"></div>
@@ -260,7 +238,7 @@
                     <span>My Assets</span>
                     <div style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:500; color:var(--text-sub);">
                         Auto-Earn (APY 5%)
-                        <label class="switch"><input type="checkbox" id="toggleEarn" autocomplete="nope" onchange="toggleStaking()"><span class="slider"></span></label>
+                        <label class="switch"><input type="checkbox" id="toggleEarn" autocomplete="off" onchange="toggleStaking()"><span class="slider"></span></label>
                     </div>
                 </div>
                 
@@ -313,36 +291,6 @@
     </div>
 
     <script>
-        // --- CUSTOM IN-APP NUMPAD LOGIC ---
-        let activeInputId = null;
-
-        function openNumpad(inputId) {
-            activeInputId = inputId;
-            document.getElementById('custom-numpad').classList.add('open');
-            document.getElementById(inputId).parentElement.style.borderColor = "var(--accent-yellow)";
-        }
-
-        function closeNumpad() {
-            document.getElementById('custom-numpad').classList.remove('open');
-            if(activeInputId) {
-                let el = document.getElementById(activeInputId);
-                if(el) el.parentElement.style.borderColor = "var(--border-color)";
-                activeInputId = null;
-            }
-        }
-
-        function typeNumpad(val) {
-            if(!activeInputId) return;
-            let el = document.getElementById(activeInputId);
-            
-            if(val === 'backspace') {
-                el.value = el.value.slice(0, -1);
-            } else {
-                if(val === '.' && el.value.includes('.')) return; 
-                el.value += val;
-            }
-        }
-
         // --- GLOBAL STATE ---
         let wallets = { fiat: 0, bitcoin: 0, ethereum: 0, solana: 0 };
         let livePrices = { bitcoin: 60000, ethereum: 3000, solana: 100 };
@@ -350,7 +298,7 @@
         let tipeAksi = ""; let riwayatTx = []; 
         let appTheme = 'dark'; let savedPin = null; let enteredPin = "";
         let stakingInterval = null;
-        let globalMarketData = []; // Simpan 50 koin di memori
+        let globalMarketData = []; 
 
         // --- UTILS ---
         function formatUang(usdAmount) {
@@ -370,7 +318,6 @@
             document.getElementById(id).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(btn) btn.classList.add('active');
-            closeNumpad(); 
         }
 
         // --- INIT & LOCKSCREEN ---
@@ -499,10 +446,8 @@
             renderRiwayat();
         }
 
-        // --- FETCH TOP 50 COINS COINGECKO ---
         async function ambilDataPasar() {
             try {
-                // Mengambil 50 koin terbesar berdasarkan market cap
                 const res = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false`);
                 if (!res.ok) throw new Error("API Limit");
                 const data = await res.json();
@@ -513,7 +458,6 @@
             }
         }
 
-        // Fungsi Dummy untuk men-generate 50 koin pura-pura jika API mati
         function generateDummyData() {
             const topCoins = [
                 {id:'bitcoin', symbol:'btc', name:'Bitcoin', current_price: 69200, price_change_percentage_24h: 2.45, image: 'https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=025'},
@@ -526,25 +470,23 @@
                 topCoins.push({
                     id: `coin-${i}`, symbol: `C${i}`, name: `Altcoin Project ${i}`,
                     current_price: Math.random() * 50, price_change_percentage_24h: (Math.random() * 15) - 7.5,
-                    image: 'https://cryptologos.cc/logos/polkadot-new-dot-logo.svg?v=025' // Generic image for dummy
+                    image: 'https://cryptologos.cc/logos/polkadot-new-dot-logo.svg?v=025' 
                 });
             }
             return topCoins;
         }
 
         function renderDataPasar(data) {
-            globalMarketData = data; // Simpan untuk fungsi pencarian (Search)
+            globalMarketData = data; 
             
-            // Perbarui harga dompet utama
             let btcObj = data.find(c => c.id === 'bitcoin'); if(btcObj) livePrices.bitcoin = btcObj.current_price;
             let ethObj = data.find(c => c.id === 'ethereum'); if(ethObj) livePrices.ethereum = ethObj.current_price;
             let solObj = data.find(c => c.id === 'solana'); if(solObj) livePrices.solana = solObj.current_price;
             
             updateSemuaTampilan(); 
-            renderMarketLists(""); // Render daftar tanpa filter
+            renderMarketLists(""); 
         }
 
-        // FUNGSI RENDER & SEARCH 50 KOIN
         function renderMarketLists(searchTerm) {
             let htmlMini = ""; let htmlFull = "";
             
@@ -570,7 +512,7 @@
                 </div>`;
                 
                 htmlFull += barisHtml; 
-                if(searchTerm === "" && index < 5) htmlMini += barisHtml; // Home hanya memuat 5 teratas
+                if(searchTerm === "" && index < 5) htmlMini += barisHtml; 
             });
 
             if (searchTerm === "") document.getElementById('mini-market-list').innerHTML = htmlMini; 
@@ -582,7 +524,6 @@
             renderMarketLists(keyword);
         }
 
-        // --- ORDER BOOK ANIMATION ---
         function renderOrderBook() {
             let asks = ''; let bids = '';
             for(let i=0; i<6; i++) {
@@ -595,7 +536,6 @@
             document.getElementById('ob-asks').innerHTML = asks; document.getElementById('ob-bids').innerHTML = bids;
         }
 
-        // --- QUEUE & HISTORY ---
         function renderRiwayat() {
             let container = document.getElementById('riwayat-container');
             if(riwayatTx.length === 0) { container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-sub); font-size:14px;">No recent transactions.</div>`; return; }
@@ -640,12 +580,10 @@
 
         // --- MODALS DEPOSIT & WITHDRAW ---
         function bukaModalBody(htmlKonten) { 
-            closeNumpad(); 
             document.getElementById('modalContentDynamic').innerHTML = htmlKonten; 
             document.getElementById('actionModal').style.display = 'flex'; 
         }
         function tutupModal() { 
-            closeNumpad();
             document.getElementById('actionModal').style.display = 'none'; 
         }
 
@@ -654,14 +592,16 @@
                 <div class="modal-title">Deposit</div>
                 <div class="modal-subtitle">Add funds to your account</div>
                 <div class="input-group">
-                    <select class="select-custom" id="depoMethod" autocomplete="nope" data-lpignore="true">
+                    <select class="select-custom" id="depoMethod" autocomplete="off">
                         <option value="Bank Transfer">Bank Transfer / VA</option><option value="Credit Card">Credit Card</option><option value="PayPal">PayPal</option>
                     </select>
                 </div>
+                
                 <div class="input-group">
-                    <input type="text" class="modal-input custom-kb" id="depoAmtFiat" placeholder="Tap to enter amount..." readonly onclick="openNumpad('depoAmtFiat')">
+                    <input type="text" inputmode="decimal" autocomplete="off" name="random_amount_field" spellcheck="false" class="modal-input" id="depoAmtFiat" placeholder="Enter amount...">
                     <div style="color:var(--text-sub); font-weight:600;">${currentCurrency}</div>
                 </div>
+                
                 <button class="btn-confirm" onclick="submitDeposit()">Submit Deposit</button>
                 <button class="btn-close" onclick="tutupModal()">Cancel</button>
             `);
@@ -680,12 +620,14 @@
             bukaModalBody(`
                 <div class="modal-title">Withdraw Fiat</div>
                 <div class="modal-subtitle">Avail: ${formatUang(wallets.fiat)}</div>
-                <div class="input-group"><select class="select-custom" id="wdMethodFiat" autocomplete="nope" data-lpignore="true"><option value="Bank Account">To Bank Account</option><option value="PayPal">To PayPal</option></select></div>
-                <div class="input-group"><input type="text" autocomplete="nope" autocorrect="off" spellcheck="false" autocapitalize="none" data-lpignore="true" data-form-type="other" class="modal-input" placeholder="Enter Dest. Account..."></div>
+                <div class="input-group"><select class="select-custom" id="wdMethodFiat" autocomplete="off"><option value="Bank Account">To Bank Account</option><option value="PayPal">To PayPal</option></select></div>
+                <div class="input-group"><input type="text" autocomplete="off" spellcheck="false" name="random_dest_field" class="modal-input" placeholder="Dest. Account/Name (Optional)"></div>
+                
                 <div class="input-group">
-                    <input type="text" class="modal-input custom-kb" id="wdAmtFiat" placeholder="Tap to enter amount..." readonly onclick="openNumpad('wdAmtFiat')">
+                    <input type="text" inputmode="decimal" autocomplete="off" name="random_amount_wd_field" spellcheck="false" class="modal-input" id="wdAmtFiat" placeholder="Enter amount...">
                     <div style="color:var(--text-sub); font-weight:600;">${currentCurrency}</div>
                 </div>
+
                 <button class="btn-confirm" onclick="submitWithdraw()">Request Withdraw</button>
                 <button class="btn-close" onclick="tutupModal()">Cancel</button>
             `);
@@ -705,10 +647,10 @@
             bukaModalBody(`
                 <div class="modal-title">Convert Crypto</div>
                 <div class="modal-subtitle">Direct conversion (Zero Fee)</div>
-                <div class="input-group"><select class="select-custom" id="convDirection" autocomplete="nope" data-lpignore="true"><option value="buy">Fiat (${currentCurrency}) ➔ BTC</option><option value="sell">BTC ➔ Fiat (${currentCurrency})</option></select></div>
+                <div class="input-group"><select class="select-custom" id="convDirection" autocomplete="off"><option value="buy">Fiat (${currentCurrency}) ➔ BTC</option><option value="sell">BTC ➔ Fiat (${currentCurrency})</option></select></div>
                 
                 <div class="input-group">
-                    <input type="text" class="modal-input custom-kb" id="convAmt" placeholder="Tap to enter amount..." readonly onclick="openNumpad('convAmt')">
+                    <input type="text" inputmode="decimal" autocomplete="off" name="random_amount_conv_field" spellcheck="false" class="modal-input" id="convAmt" placeholder="Enter amount...">
                 </div>
                 <div style="text-align:right; font-size:12px; color:var(--accent-yellow); margin-bottom:20px;">1 BTC = ${formatUang(livePrices.bitcoin)}</div>
                 
@@ -736,13 +678,13 @@
 
         function bukaModalProfil(tipe) {
             if(tipe === 'Currency') {
-                bukaModalBody(`<div class="modal-title">Currency Settings</div><div class="input-group"><select class="select-custom" id="selCurr" autocomplete="nope" data-lpignore="true"><option value="USD" ${currentCurrency==='USD'?'selected':''}>US Dollar (USD)</option><option value="IDR" ${currentCurrency==='IDR'?'selected':''}>Indonesian Rupiah (IDR)</option></select></div><button class="btn-confirm" onclick="simpanCurrency()">Save</button><button class="btn-close" onclick="tutupModal()">Cancel</button>`);
+                bukaModalBody(`<div class="modal-title">Currency Settings</div><div class="input-group"><select class="select-custom" id="selCurr" autocomplete="off"><option value="USD" ${currentCurrency==='USD'?'selected':''}>US Dollar (USD)</option><option value="IDR" ${currentCurrency==='IDR'?'selected':''}>Indonesian Rupiah (IDR)</option></select></div><button class="btn-confirm" onclick="simpanCurrency()">Save</button><button class="btn-close" onclick="tutupModal()">Cancel</button>`);
             } else if (tipe === 'Passcode') {
                 bukaModalBody(`
                     <div class="modal-title">Set App PIN</div>
                     <div class="modal-subtitle">Setup 6-digit lock screen PIN.</div>
                     <div class="input-group">
-                        <input type="text" class="modal-input custom-kb" id="setupPinInput" placeholder="Tap to enter 6-digit PIN" maxlength="6" readonly onclick="openNumpad('setupPinInput')">
+                        <input type="text" inputmode="numeric" autocomplete="new-password" spellcheck="false" class="modal-input" id="setupPinInput" placeholder="Enter new 6-digit PIN" maxlength="6">
                     </div>
                     <button class="btn-confirm" onclick="simpanPinBaru()">Save PIN</button>
                     <button class="btn-close" onclick="tutupModal()">Cancel</button>
