@@ -12,13 +12,14 @@
     </script>
 
     <link rel="manifest" href='data:application/json;charset=utf-8,%7B%22name%22%3A%22Crypto%20Pro%22%2C%22short_name%22%3A%22CryptoPro%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230b0e11%22%2C%22theme_color%22%3A%22%230b0e11%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcryptologos.cc%2Flogos%2Fbitcoin-btc-logo.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D'>
-    <meta name="theme-color" content="#0b0e11">
+    <meta name="theme-color" content="#0b0e11" id="meta-theme-color">
     <meta name="apple-mobile-web-app-capable" content="yes">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
     
     <style>
+        /* CSS VARIABLES UNTUK THEME */
         :root {
             --bg-main: #0b0e11; --bg-card: #1e2329; --bg-hover: #2b3139;
             --text-main: #eaecef; --text-sub: #848e9c;
@@ -26,14 +27,30 @@
             --border-color: #2b3139;
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; display: flex; justify-content: center; min-height: 100dvh; -webkit-tap-highlight-color: transparent; overflow: hidden; }
-        .app-container { width: 100%; max-width: 480px; height: 100dvh; background-color: var(--bg-main); display: flex; flex-direction: column; position: relative; }
+        [data-theme="light"] {
+            --bg-main: #f5f5f5; --bg-card: #ffffff; --bg-hover: #e8e8e8;
+            --text-main: #1e2329; --text-sub: #5e6673;
+            --border-color: #e0e0e0;
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; display: flex; justify-content: center; min-height: 100dvh; -webkit-tap-highlight-color: transparent; overflow: hidden; transition: background-color 0.3s, color 0.3s;}
+        .app-container { width: 100%; max-width: 480px; height: 100dvh; background-color: var(--bg-main); display: flex; flex-direction: column; position: relative; transition: background-color 0.3s;}
         .content-scroll { overflow-y: auto; flex-grow: 1; padding: 16px 16px 120px 16px; scroll-behavior: smooth;}
 
-        #splash-screen { position: absolute; top:0; left:0; width: 100%; height: 100%; background-color: var(--bg-main); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: opacity 0.5s; }
+        /* SPLASH & PIN SCREEN */
+        #splash-screen, #pin-screen { position: absolute; top:0; left:0; width: 100%; height: 100%; background-color: var(--bg-main); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s; }
+        #splash-screen { cursor: pointer; }
         .splash-logo { width: 80px; height: 80px; background: var(--accent-yellow); border-radius: 20px; display: flex; justify-content: center; align-items: center; font-size: 40px; color: #000; margin-bottom: 20px; animation: pulse 1.5s infinite;}
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         
+        /* PIN KEYPAD */
+        .pin-dots { display: flex; gap: 16px; margin: 24px 0 40px 0; }
+        .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--text-sub); }
+        .pin-dot.filled { background: var(--accent-yellow); border-color: var(--accent-yellow); }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 300px; width: 100%; }
+        .key { width: 64px; height: 64px; border-radius: 50%; background: var(--bg-card); display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: 600; cursor: pointer; margin: auto; transition: 0.1s;}
+        .key:active { background: var(--bg-hover); transform: scale(0.9); }
+
         .view { display: none; width: 100%; animation: fade 0.3s ease-in-out; }
         .view.active { display: block; }
         @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -41,11 +58,9 @@
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative; }
         .app-title { position: absolute; left: 50%; transform: translateX(-50%); font-size: 16px; font-weight: 600; color: var(--text-main); letter-spacing: 0.5px; }
         .user-avatar { width: 34px; height: 34px; background-color: var(--accent-yellow); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; color: #000; cursor:pointer; overflow: hidden; background-size: cover; background-position: center;}
-        .icon-btn { color: var(--text-sub); cursor: pointer; position: relative; }
-        .badge-dot { position: absolute; top: 0; right: 0; width: 8px; height: 8px; background: var(--red-down); border-radius: 50%; border: 2px solid var(--bg-main); }
         
         .balance-card { padding: 0 0 24px 0; }
-        .balance-header { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-sub); margin-bottom: 8px; font-weight: 500;}
+        .balance-header { display: flex; align-items: center; justify-content: space-between; font-size: 14px; color: var(--text-sub); margin-bottom: 8px; font-weight: 500;}
         .balance-amount { font-size: 32px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: baseline; gap: 4px; word-break: break-all;}
         .badge-pro { background: linear-gradient(90deg, #fcd535, #f0b90b); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; margin-left: 8px;}
         
@@ -55,9 +70,14 @@
         .action-item:active .action-icon { transform: scale(0.95); background-color: var(--bg-hover); }
         .action-text { font-size: 12px; font-weight: 500; color: var(--text-main); text-align: center;}
 
-        .chart-wrapper { width: 100%; height: 400px; margin-bottom: 24px; border-radius: 12px; overflow: hidden; background-color: var(--bg-card); border: 1px solid var(--border-color);}
+        .chart-wrapper { width: 100%; height: 350px; margin-bottom: 16px; border-radius: 12px; overflow: hidden; background-color: var(--bg-card); border: 1px solid var(--border-color);}
 
-        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+        /* ORDER BOOK STYLE */
+        .order-book { display: flex; gap: 16px; background: var(--bg-card); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 24px;}
+        .ob-col { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .ob-header { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub); margin-bottom: 4px; font-weight: 600;}
+
+        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;}
         .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border-color); }
         .item-left { display: flex; align-items: center; gap: 12px; }
         .coin-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background-color: var(--bg-card); color: var(--text-main); overflow: hidden;}
@@ -85,16 +105,24 @@
         .spinner { border: 3px solid rgba(0,0,0,0.1); border-top: 3px solid #000; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none;}
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background-color: var(--bg-main); display: flex; justify-content: space-around; padding: 12px 0 20px 0; border-top: 1px solid var(--border-color); z-index: 50;}
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background-color: var(--bg-main); display: flex; justify-content: space-around; padding: 12px 0 20px 0; border-top: 1px solid var(--border-color); z-index: 50; transition: background-color 0.3s;}
         .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--text-sub); cursor: pointer; gap: 4px; font-weight: 500;}
         .nav-item.active { color: var(--text-main); }
         .nav-item.active .material-symbols-outlined { color: var(--accent-yellow); font-variation-settings: 'FILL' 1;}
         
         .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none;}
-        .toast { background: var(--bg-card); padding: 14px 16px; border-radius: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.8); border-left: 4px solid var(--accent-yellow); animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .toast { background: var(--bg-card); padding: 14px 16px; border-radius: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.8); border-left: 4px solid var(--accent-yellow); animation: slideDown 0.4s forwards; }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .toast-out { animation: fadeOut 0.4s ease forwards; }
+        .toast-out { animation: fadeOut 0.4s forwards; }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
+
+        /* TOGGLE SWITCH STAKING */
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--green-up); }
+        input:checked + .slider:before { transform: translateX(20px); }
 
         #avatar-upload { display: none; }
     </style>
@@ -106,7 +134,22 @@
 
     <div class="app-container">
         
-        <div id="splash-screen" onclick="mulaiAplikasi()">
+        <div id="pin-screen" style="display:none;">
+            <div class="splash-logo"><span class="material-symbols-outlined" style="font-size: 40px;">lock</span></div>
+            <h2 style="margin:0; font-size: 20px;">Enter App PIN</h2>
+            <div class="pin-dots" id="pinDots">
+                <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+                <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+            </div>
+            <div class="keypad">
+                <div class="key" onclick="inputPin(1)">1</div><div class="key" onclick="inputPin(2)">2</div><div class="key" onclick="inputPin(3)">3</div>
+                <div class="key" onclick="inputPin(4)">4</div><div class="key" onclick="inputPin(5)">5</div><div class="key" onclick="inputPin(6)">6</div>
+                <div class="key" onclick="inputPin(7)">7</div><div class="key" onclick="inputPin(8)">8</div><div class="key" onclick="inputPin(9)">9</div>
+                <div></div><div class="key" onclick="inputPin(0)">0</div><div class="key" onclick="clearPin()"><span class="material-symbols-outlined">backspace</span></div>
+            </div>
+        </div>
+
+        <div id="splash-screen" onclick="cekKeamananLaluMulai()">
             <div class="splash-logo"><span class="material-symbols-outlined" style="font-size: 40px;">currency_bitcoin</span></div>
             <h2 style="margin:0; font-size: 24px;">Crypto Pro</h2>
             <p style="color: var(--text-sub); font-size: 14px; margin-top: 8px;">Tap anywhere to enter</p>
@@ -117,23 +160,23 @@
                 <div class="top-bar">
                     <div class="user-avatar profile-pic-render" onclick="pindahHalaman('view-profile', document.getElementById('nav-profile'))">BZ</div>
                     <div class="app-title">Crypto Pro Wallet</div>
-                    <div class="icon-btn" onclick="munculToast('No new notifications', 'notifications')">
-                        <span class="material-symbols-outlined">notifications</span>
-                        <div class="badge-dot"></div>
-                    </div>
+                    <div class="icon-btn" onclick="munculToast('No new notifications', 'notifications')"><span class="material-symbols-outlined">notifications</span></div>
                 </div>
 
                 <div class="balance-card">
-                    <div class="balance-header">Total Asset Value <span class="badge-pro">PRO</span></div>
+                    <div class="balance-header">
+                        <div>Total Asset Value <span class="badge-pro">PRO</span></div>
+                        <div style="background:var(--bg-card); padding:4px 8px; border-radius:12px; font-size:12px; border:1px solid var(--border-color);"><span id="txt-curr-home">USD</span></div>
+                    </div>
                     <div class="balance-amount"><span id="curr-symbol-main">$</span><span id="total-balance-usd">0.00</span></div>
                     <div style="font-size: 14px; color: var(--green-up); font-weight: 500;">+2.45% Today</div>
                 </div>
 
                 <div class="actions-row">
-                    <div class="action-item" onclick="bukaModalDeposit()"><div class="action-icon"><span class="material-symbols-outlined">payments</span></div><div class="action-text">Deposit<br>Fiat/Crypto</div></div>
-                    <div class="action-item" onclick="bukaModalWithdraw()"><div class="action-icon"><span class="material-symbols-outlined">send</span></div><div class="action-text">Withdraw<br>Fiat/Crypto</div></div>
-                    <div class="action-item" onclick="bukaModalTrade('Convert')"><div class="action-icon"><span class="material-symbols-outlined">currency_exchange</span></div><div class="action-text">Convert<br>BTC ⇄ Fiat</div></div>
-                    <div class="action-item" onclick="pindahHalaman('view-markets', document.getElementById('nav-market'))"><div class="action-icon"><span class="material-symbols-outlined">monitoring</span></div><div class="action-text">Spot<br>Trading</div></div>
+                    <div class="action-item" onclick="bukaModalDeposit()"><div class="action-icon"><span class="material-symbols-outlined">payments</span></div><div class="action-text">Deposit</div></div>
+                    <div class="action-item" onclick="bukaModalWithdraw()"><div class="action-icon"><span class="material-symbols-outlined">send</span></div><div class="action-text">Withdraw</div></div>
+                    <div class="action-item" onclick="bukaModalTrade('Convert')"><div class="action-icon"><span class="material-symbols-outlined">currency_exchange</span></div><div class="action-text">Convert</div></div>
+                    <div class="action-item" onclick="pindahHalaman('view-markets', document.getElementById('nav-market'))"><div class="action-icon"><span class="material-symbols-outlined">monitoring</span></div><div class="action-text">Trading</div></div>
                 </div>
 
                 <div class="section-title">Top Markets</div>
@@ -143,25 +186,35 @@
             <div class="view" id="view-markets">
                 <div class="top-bar">
                     <div class="user-avatar profile-pic-render" onclick="pindahHalaman('view-profile', document.getElementById('nav-profile'))">BZ</div>
-                    <div class="app-title">Markets</div>
-                    <div class="icon-btn" onclick="munculToast('No new notifications', 'notifications')">
-                        <span class="material-symbols-outlined">notifications</span>
-                    </div>
+                    <div class="app-title">Spot Markets</div>
+                    <div class="icon-btn" onclick="munculToast('No new notifications', 'notifications')"><span class="material-symbols-outlined">notifications</span></div>
                 </div>
                 
-                <div class="section-title" style="margin-bottom: 16px;">Live Chart (BTC/USDT)</div>
                 <div class="chart-wrapper">
                     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
                     <script type="text/javascript">
                         new TradingView.widget({
                             "autosize": true, "symbol": "BINANCE:BTCUSDT", "interval": "15", "timezone": "Asia/Jakarta",
-                            "theme": "dark", "style": "1", "locale": "en", "backgroundColor": "#1e2329", "gridColor": "#2b3139",
-                            "enable_publishing": false, "hide_top_toolbar": false, "hide_legend": false, "save_image": false,
+                            "theme": "dark", "style": "1", "locale": "en", "backgroundColor": "transparent", "gridColor": "#2b3139",
+                            "enable_publishing": false, "hide_top_toolbar": true, "hide_legend": true, "save_image": false,
                             "container_id": "tradingview_chart"
                         });
                     </script>
                 </div>
-                <div class="section-title" style="margin-bottom: 16px;">All Markets</div>
+
+                <div class="section-title">Order Book (Live)</div>
+                <div class="order-book">
+                    <div class="ob-col">
+                        <div class="ob-header"><span>Bid (Buy)</span><span>Amount</span></div>
+                        <div id="ob-bids"></div>
+                    </div>
+                    <div class="ob-col">
+                        <div class="ob-header"><span>Ask (Sell)</span><span>Amount</span></div>
+                        <div id="ob-asks"></div>
+                    </div>
+                </div>
+
+                <div class="section-title">All Markets</div>
                 <div id="full-market-list"></div>
             </div>
 
@@ -169,63 +222,45 @@
                 <div class="top-bar">
                     <div class="user-avatar profile-pic-render" onclick="pindahHalaman('view-profile', document.getElementById('nav-profile'))">BZ</div>
                     <div class="app-title">My Wallets</div>
-                    <div class="icon-btn" onclick="munculToast('No new notifications', 'notifications')">
-                        <span class="material-symbols-outlined">notifications</span>
+                    <div class="icon-btn" onclick="munculToast('No new notifications', 'notifications')"><span class="material-symbols-outlined">notifications</span></div>
+                </div>
+                
+                <div class="section-title">
+                    <span>My Assets</span>
+                    <div style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:500; color:var(--text-sub);">
+                        Auto-Earn (APY 5%)
+                        <label class="switch"><input type="checkbox" id="toggleEarn" onchange="toggleStaking()"><span class="slider"></span></label>
                     </div>
                 </div>
                 
-                <div class="section-title">My Assets</div>
-                <div class="list-item" style="background:var(--bg-card); padding:16px; border-radius:12px; margin-bottom:12px; border:1px solid var(--border-color);">
-                    <div class="item-left">
-                        <div class="coin-icon" style="background: rgba(14, 203, 129, 0.1); color: var(--green-up);"><span class="material-symbols-outlined">account_balance_wallet</span></div>
-                        <div><div class="coin-name" id="label-fiat-wallet">Fiat Balance (USD)</div><div class="coin-symbol">Cash</div></div>
-                    </div>
-                    <div class="price-text" id="asset-usd-amount">$0.00</div>
-                </div>
+                <div id="wallet-list-render"></div>
 
-                <div class="list-item" style="background:var(--bg-card); padding:16px; border-radius:12px; margin-bottom:24px; border:1px solid var(--border-color);">
-                    <div class="item-left">
-                        <div class="coin-icon"><img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=025" alt="BTC"></div>
-                        <div><div class="coin-name">Bitcoin</div><div class="coin-symbol">BTC</div></div>
-                    </div>
-                    <div>
-                        <div class="price-text" id="asset-btc-amount">0.0000 BTC</div>
-                        <div class="coin-symbol" style="text-align:right;" id="asset-btc-value">≈ $0.00</div>
-                    </div>
-                </div>
-
-                <div class="section-title">Transaction History</div>
-                <div id="riwayat-container">
-                    <div style="text-align:center; padding:20px; color:var(--text-sub); font-size:14px;">No recent transactions.</div>
-                </div>
+                <div class="section-title" style="margin-top: 24px;">Transaction History</div>
+                <div id="riwayat-container"></div>
             </div>
 
             <div class="view" id="view-profile">
                 <div class="top-bar">
                     <div style="width: 34px;"></div>
                     <div class="app-title">Profile</div>
-                    <div class="icon-btn" onclick="munculToast('No new notifications', 'notifications')">
-                        <span class="material-symbols-outlined">notifications</span>
-                    </div>
+                    <div class="icon-btn" onclick="munculToast('No new notifications', 'notifications')"><span class="material-symbols-outlined">notifications</span></div>
                 </div>
                 
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px; margin-top: 20px;">
                     <div class="user-avatar profile-pic-render" style="width: 64px; height: 64px; font-size: 28px;" onclick="document.getElementById('avatar-upload').click()">BZ</div>
                     <div>
                         <div style="font-size: 20px; font-weight: 700;">BAYU RIZKI ZULFIKRI</div>
-                        <div style="font-size: 13px; color: var(--text-sub); margin-top:4px;">UID: 84719203 • <span style="color:var(--green-up);">Verified</span></div>
+                        <div style="font-size: 13px; color: var(--text-sub); margin-top:4px;">UID: 84719203 • <span style="color:var(--green-up);">Verified VIP</span></div>
                     </div>
                 </div>
                 
                 <div class="profile-menu">
+                    <div class="menu-row" onclick="toggleTheme()"><span class="material-symbols-outlined menu-icon">light_mode</span><span class="menu-text">Dark/Light Mode</span><span class="material-symbols-outlined menu-arrow">sync</span></div>
+                    <div class="menu-row" onclick="bukaModalProfil('Passcode')"><span class="material-symbols-outlined menu-icon">lock</span><span class="menu-text">Set App PIN</span><span class="material-symbols-outlined menu-arrow" id="pin-status-icon">chevron_right</span></div>
+                    <div class="menu-row" onclick="bukaModalProfil('Currency')"><span class="material-symbols-outlined menu-icon">language</span><span class="menu-text">Currency (<span id="txt-curr-setting">USD</span>)</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
                     <div class="menu-row" onclick="munculToast('Identity Verification (KYC) is completed.', 'verified')"><span class="material-symbols-outlined menu-icon">badge</span><span class="menu-text">Identity Verification</span><span class="material-symbols-outlined" style="color: var(--green-up);">verified</span></div>
-                    <div class="menu-row" onclick="bukaModalProfil('Passcode')"><span class="material-symbols-outlined menu-icon">lock</span><span class="menu-text">Security (App PIN)</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
-                    <div class="menu-row" onclick="bukaModalProfil('Payment')"><span class="material-symbols-outlined menu-icon">account_balance</span><span class="menu-text">Payment Methods</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
-                    <div class="menu-row" onclick="bukaModalProfil('Currency')"><span class="material-symbols-outlined menu-icon">language</span><span class="menu-text">Currency Settings (<span id="txt-curr-setting">USD</span>)</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
-                    
                     <div class="menu-row" onclick="logoutApp()"><span class="material-symbols-outlined menu-icon" style="color: var(--accent-yellow);">logout</span><span class="menu-text" style="color: var(--accent-yellow);">Log Out</span></div>
-
-                    <div class="menu-row" onclick="resetSaldo()"><span class="material-symbols-outlined menu-icon" style="color: var(--red-down);">delete_forever</span><span class="menu-text" style="color: var(--red-down);">Reset Account Data</span></div>
+                    <div class="menu-row" onclick="resetSaldo()"><span class="material-symbols-outlined menu-icon" style="color: var(--red-down);">delete_forever</span><span class="menu-text" style="color: var(--red-down);">Factory Reset App</span></div>
                 </div>
             </div>
         </div>
@@ -248,28 +283,19 @@
 
     <script>
         // --- GLOBAL STATE ---
-        let saldoFiat = 0, saldoBTC = 0, btcPriceReal = 60000; 
-        let currentCurrency = 'USD'; 
-        const rateIDR = 15500; 
-        let tipeAksi = ""; 
-        let riwayatTx = []; 
+        let wallets = { fiat: 0, bitcoin: 0, ethereum: 0, solana: 0 };
+        let livePrices = { bitcoin: 60000, ethereum: 3000, solana: 100 };
+        let currentCurrency = 'USD'; let rateIDR = 15500; 
+        let tipeAksi = ""; let riwayatTx = []; 
+        let appTheme = 'dark'; let savedPin = null; let enteredPin = "";
+        let stakingInterval = null;
 
         const daftarKoin = [
             { id: 'bitcoin', nama: 'Bitcoin', simbol: 'BTC', img: 'bitcoin-btc-logo' },
             { id: 'ethereum', nama: 'Ethereum', simbol: 'ETH', img: 'ethereum-eth-logo' },
-            { id: 'tether', nama: 'Tether', simbol: 'USDT', img: 'tether-usdt-logo' },
             { id: 'solana', nama: 'Solana', simbol: 'SOL', img: 'solana-sol-logo' },
             { id: 'binancecoin', nama: 'BNB', simbol: 'BNB', img: 'bnb-bnb-logo' },
-            { id: 'ripple', nama: 'Ripple', simbol: 'XRP', img: 'xrp-xrp-logo' },
-            { id: 'cardano', nama: 'Cardano', simbol: 'ADA', img: 'cardano-ada-logo' },
-            { id: 'dogecoin', nama: 'Dogecoin', simbol: 'DOGE', img: 'dogecoin-doge-logo' },
-            { id: 'polkadot', nama: 'Polkadot', simbol: 'DOT', img: 'polkadot-new-dot-logo' },
-            { id: 'avalanche-2', nama: 'Avalanche', simbol: 'AVAX', img: 'avalanche-avax-logo' },
-            { id: 'chainlink', nama: 'Chainlink', simbol: 'LINK', img: 'chainlink-link-logo' },
-            { id: 'matic-network', nama: 'Polygon', simbol: 'MATIC', img: 'polygon-matic-logo' },
-            { id: 'tron', nama: 'TRON', simbol: 'TRX', img: 'tron-trx-logo' },
-            { id: 'uniswap', nama: 'Uniswap', simbol: 'UNI', img: 'uniswap-uni-logo' },
-            { id: 'cosmos', nama: 'Cosmos', simbol: 'ATOM', img: 'cosmos-atom-logo' }
+            { id: 'ripple', nama: 'Ripple', simbol: 'XRP', img: 'xrp-xrp-logo' }
         ];
 
         // --- UTILS ---
@@ -280,11 +306,9 @@
 
         function munculToast(pesan, ikon = 'info') {
             const box = document.getElementById('toastBox');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = `<span class="material-symbols-outlined toast-icon">${ikon}</span><div class="toast-text">${pesan}</div>`;
-            box.appendChild(toast);
-            setTimeout(() => { toast.classList.add('toast-out'); setTimeout(() => toast.remove(), 400); }, 3000);
+            const t = document.createElement('div'); t.className = 'toast';
+            t.innerHTML = `<span class="material-symbols-outlined toast-icon">${ikon}</span><div class="toast-text">${pesan}</div>`;
+            box.appendChild(t); setTimeout(() => { t.classList.add('toast-out'); setTimeout(() => t.remove(), 400); }, 3000);
         }
 
         function pindahHalaman(id, btn) {
@@ -294,120 +318,133 @@
             if(btn) btn.classList.add('active');
         }
 
-        // --- INITIALIZATION & STORAGE ---
+        // --- INIT & LOCKSCREEN ---
+        function cekKeamananLaluMulai() {
+            if(savedPin) {
+                document.getElementById('splash-screen').style.display = 'none';
+                document.getElementById('pin-screen').style.display = 'flex';
+            } else {
+                mulaiAplikasi();
+            }
+        }
+
+        function inputPin(num) {
+            if(enteredPin.length < 6) {
+                enteredPin += num;
+                document.querySelectorAll('.pin-dot')[enteredPin.length-1].classList.add('filled');
+                if(enteredPin.length === 6) {
+                    setTimeout(() => {
+                        if(enteredPin === savedPin) {
+                            document.getElementById('pin-screen').style.display = 'none';
+                            mulaiAplikasi();
+                        } else {
+                            munculToast('Incorrect PIN!', 'error');
+                            clearPin();
+                        }
+                    }, 200);
+                }
+            }
+        }
+
+        function clearPin() {
+            enteredPin = "";
+            document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('filled'));
+        }
+
         function mulaiAplikasi() {
             let elem = document.documentElement;
             if (elem.requestFullscreen) elem.requestFullscreen();
-            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen(); 
             
             document.getElementById('splash-screen').style.opacity = '0';
             setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; }, 500);
             
-            loadDatabase(); ambilDataPasar(); setInterval(cekAntrianTx, 2000);
+            loadDatabase(); ambilDataPasar(); setInterval(cekAntrianTx, 2000); setInterval(renderOrderBook, 1500);
         }
 
         function loadDatabase() {
-            let sUsd = localStorage.getItem("bayu_fiat");
-            let sBtc = localStorage.getItem("bayu_btc");
-            let curr = localStorage.getItem("bayu_currency");
-            let hx = localStorage.getItem("bayu_history");
-            let pic = localStorage.getItem("bayu_pic");
-
-            if (sUsd !== null) { saldoFiat = parseFloat(sUsd); saldoBTC = parseFloat(sBtc); } 
-            else { saldoFiat = 5000.00; saldoBTC = 0.1500; }
+            let w = localStorage.getItem("bayu_wallets");
+            if (w) wallets = JSON.parse(w); else wallets = { fiat: 5000, bitcoin: 0.15, ethereum: 1.2, solana: 15 };
             
-            if (curr !== null) currentCurrency = curr;
-            if (hx !== null) riwayatTx = JSON.parse(hx);
-            if (pic !== null) updatePicUI(pic);
+            let curr = localStorage.getItem("bayu_currency"); if (curr) currentCurrency = curr;
+            let hx = localStorage.getItem("bayu_history"); if (hx) riwayatTx = JSON.parse(hx);
+            let pic = localStorage.getItem("bayu_pic"); if (pic) updatePicUI(pic);
+            let th = localStorage.getItem("bayu_theme"); if(th) { appTheme = th; applyTheme(); }
+            savedPin = localStorage.getItem("bayu_pin"); 
+            if(savedPin) document.getElementById('pin-status-icon').style.color = "var(--green-up)";
 
             updateSemuaTampilan();
         }
 
         function simpanDatabase() {
-            localStorage.setItem("bayu_fiat", saldoFiat); 
-            localStorage.setItem("bayu_btc", saldoBTC);
+            localStorage.setItem("bayu_wallets", JSON.stringify(wallets)); 
             localStorage.setItem("bayu_currency", currentCurrency);
             localStorage.setItem("bayu_history", JSON.stringify(riwayatTx));
+            localStorage.setItem("bayu_theme", appTheme);
         }
 
         function resetSaldo() { 
-            if(confirm("Mas Bayu, hapus semua data dan kembali ke awal?")) { 
-                localStorage.removeItem("bayu_fiat");
-                localStorage.removeItem("bayu_btc");
-                localStorage.removeItem("bayu_currency");
-                localStorage.removeItem("bayu_history");
-                localStorage.removeItem("bayu_pic");
-                window.location.reload(); 
-            } 
+            if(confirm("Mas Bayu, hapus semua data dan kembali ke awal?")) { localStorage.clear(); window.location.reload(); } 
         }
 
         function logoutApp() {
-            if(confirm("Are you sure you want to log out?")) {
-                localStorage.removeItem("bayu_isLoggedIn");
-                window.location.replace("login.html");
-            }
+            if(confirm("Are you sure you want to log out?")) { localStorage.removeItem("bayu_isLoggedIn"); window.location.replace("login.html"); }
         }
 
         function gantiFotoProfil(event) {
-            let file = event.target.files[0];
-            if(!file) return;
+            let file = event.target.files[0]; if(!file) return;
             let reader = new FileReader();
-            reader.onload = function(e) {
-                let imgData = e.target.result;
-                localStorage.setItem("bayu_pic", imgData);
-                updatePicUI(imgData);
-                munculToast("Profile picture updated!", "check_circle");
-            };
+            reader.onload = function(e) { localStorage.setItem("bayu_pic", e.target.result); updatePicUI(e.target.result); munculToast("Profile picture updated!", "check_circle"); };
             reader.readAsDataURL(file);
         }
+        function updatePicUI(base64) { document.querySelectorAll('.profile-pic-render').forEach(el => { el.innerText = ""; el.style.backgroundImage = `url(${base64})`; }); }
 
-        function updatePicUI(base64) {
-            document.querySelectorAll('.profile-pic-render').forEach(el => {
-                el.innerText = "";
-                el.style.backgroundImage = `url(${base64})`;
-            });
+        function toggleTheme() {
+            appTheme = appTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(); simpanDatabase(); munculToast(`Theme set to ${appTheme} mode`, 'palette');
+        }
+        function applyTheme() {
+            if(appTheme === 'light') { document.body.setAttribute('data-theme', 'light'); document.getElementById('meta-theme-color').setAttribute("content", "#f5f5f5"); }
+            else { document.body.removeAttribute('data-theme'); document.getElementById('meta-theme-color').setAttribute("content", "#0b0e11"); }
         }
 
+        // --- EARN / STAKING LOGIC ---
+        function toggleStaking() {
+            let isChecked = document.getElementById('toggleEarn').checked;
+            if(isChecked) {
+                munculToast("Auto-Earn Activated. Earning yield...", "savings");
+                stakingInterval = setInterval(() => { wallets.fiat += 0.05; wallets.bitcoin += 0.00000001; updateSemuaTampilan(); simpanDatabase(); }, 5000);
+            } else {
+                clearInterval(stakingInterval); munculToast("Auto-Earn Deactivated.", "info");
+            }
+        }
+
+        // --- UPDATE UI CORE ---
         function updateSemuaTampilan() {
-            let nilaiBtcUsd = saldoBTC * btcPriceReal;
-            let totalUsd = saldoFiat + nilaiBtcUsd;
+            let totalUsd = wallets.fiat + (wallets.bitcoin * livePrices.bitcoin) + (wallets.ethereum * livePrices.ethereum) + (wallets.solana * livePrices.solana);
             
             document.getElementById('curr-symbol-main').innerText = currentCurrency === 'IDR' ? "Rp " : "$";
             document.getElementById('total-balance-usd').innerText = currentCurrency === 'IDR' ? (totalUsd*rateIDR).toLocaleString('id-ID',{maximumFractionDigits:0}) : totalUsd.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            
-            document.getElementById('label-fiat-wallet').innerText = `Fiat Balance (${currentCurrency})`;
-            document.getElementById('asset-usd-amount').innerText = formatUang(saldoFiat);
-            document.getElementById('asset-btc-amount').innerText = saldoBTC.toFixed(6) + " BTC";
-            document.getElementById('asset-btc-value').innerText = "≈ " + formatUang(nilaiBtcUsd);
+            document.getElementById('txt-curr-home').innerText = currentCurrency;
             document.getElementById('txt-curr-setting').innerText = currentCurrency;
 
-            renderRiwayat();
-        }
-
-        // FUNGSI PROSES DATA DENGAN BACKUP ANTI-ERROR
-        function renderDataPasar(data) {
-            if(data.bitcoin) btcPriceReal = data.bitcoin.usd;
-            updateSemuaTampilan(); 
-            
-            let htmlMini = ""; let htmlFull = "";
-            daftarKoin.forEach((koin, index) => {
-                if(data[koin.id]) {
-                    let hargaVal = currentCurrency === 'IDR' ? data[koin.id].usd * rateIDR : data[koin.id].usd;
-                    let formatHarga = currentCurrency === 'IDR' ? "Rp " + hargaVal.toLocaleString('id-ID',{maximumFractionDigits:0}) : "$" + (hargaVal < 1 ? hargaVal.toFixed(4) : hargaVal.toLocaleString('en-US', {minimumFractionDigits:2}));
-                    let persen = data[koin.id].usd_24h_change;
-                    let warna = persen >= 0 ? 'var(--green-up)' : 'var(--red-down)';
-                    
-                    let barisHtml = `
-                    <div class="list-item">
-                        <div class="item-left"><div class="coin-icon"><img src="https://cryptologos.cc/logos/${koin.img}.svg?v=025"></div><div><div class="coin-name">${koin.simbol}</div><div class="coin-symbol">${koin.nama}</div></div></div>
-                        <div class="item-right"><div class="price-text">${formatHarga}</div><div style="font-size:12px; color:${warna}; font-weight:600;">${persen>0?'+':''}${persen.toFixed(2)}%</div></div>
-                    </div>`;
-                    htmlFull += barisHtml;
-                    if(index < 4) htmlMini += barisHtml; 
-                }
+            // Render Dynamic Wallet List
+            let wHtml = `
+                <div class="list-item" style="background:var(--bg-card); padding:16px; border-radius:12px; margin-bottom:12px; border:1px solid var(--border-color);">
+                    <div class="item-left"><div class="coin-icon" style="background: rgba(14, 203, 129, 0.1); color: var(--green-up);"><span class="material-symbols-outlined">attach_money</span></div><div><div class="coin-name">Fiat Balance</div><div class="coin-symbol">Cash</div></div></div>
+                    <div class="price-text">${formatUang(wallets.fiat)}</div>
+                </div>
+            `;
+            const cList = [ {id:'bitcoin', sim:'BTC', img:'bitcoin-btc-logo'}, {id:'ethereum', sim:'ETH', img:'ethereum-eth-logo'}, {id:'solana', sim:'SOL', img:'solana-sol-logo'} ];
+            cList.forEach(c => {
+                let wBal = wallets[c.id]; let wVal = wBal * livePrices[c.id];
+                wHtml += `
+                <div class="list-item" style="background:var(--bg-card); padding:16px; border-radius:12px; margin-bottom:12px; border:1px solid var(--border-color);">
+                    <div class="item-left"><div class="coin-icon"><img src="https://cryptologos.cc/logos/${c.img}.svg?v=025"></div><div><div class="coin-name">${c.sim}</div><div class="coin-symbol">Crypto</div></div></div>
+                    <div><div class="price-text">${wBal.toFixed(6)} ${c.sim}</div><div class="coin-symbol" style="text-align:right;">≈ ${formatUang(wVal)}</div></div>
+                </div>`;
             });
-            document.getElementById('mini-market-list').innerHTML = htmlMini;
-            document.getElementById('full-market-list').innerHTML = htmlFull;
+            document.getElementById('wallet-list-render').innerHTML = wHtml;
+            renderRiwayat();
         }
 
         async function ambilDataPasar() {
@@ -418,42 +455,63 @@
                 const data = await res.json();
                 renderDataPasar(data);
             } catch (e) { 
-                console.log("Loading dari API gagal, beralih ke data dummy.");
-                const dummy = {
-                    "bitcoin": { usd: 69200.50, usd_24h_change: 2.45 }, "ethereum": { usd: 3450.10, usd_24h_change: -1.2 },
-                    "tether": { usd: 1.00, usd_24h_change: 0.01 }, "solana": { usd: 145.20, usd_24h_change: 5.6 },
-                    "binancecoin": { usd: 590.00, usd_24h_change: 1.1 }, "ripple": { usd: 0.58, usd_24h_change: -0.5 },
-                    "cardano": { usd: 0.45, usd_24h_change: 0.8 }, "dogecoin": { usd: 0.15, usd_24h_change: 8.4 },
-                    "polkadot": { usd: 7.20, usd_24h_change: -2.1 }, "avalanche-2": { usd: 45.60, usd_24h_change: 3.2 },
-                    "chainlink": { usd: 18.50, usd_24h_change: 1.5 }, "matic-network": { usd: 0.95, usd_24h_change: -1.1 },
-                    "tron": { usd: 0.12, usd_24h_change: 0.4 }, "uniswap": { usd: 7.80, usd_24h_change: -3.5 },
-                    "cosmos": { usd: 8.90, usd_24h_change: 1.2 }
-                };
+                const dummy = { "bitcoin": { usd: 69200.50, usd_24h_change: 2.45 }, "ethereum": { usd: 3450.10, usd_24h_change: -1.2 }, "solana": { usd: 145.20, usd_24h_change: 5.6 }, "binancecoin": { usd: 590.00, usd_24h_change: 1.1 }, "ripple": { usd: 0.58, usd_24h_change: -0.5 } };
                 renderDataPasar(dummy);
             }
         }
 
-        // --- SISTEM ANTREAN TRANSAKSI (PENDING) ---
+        function renderDataPasar(data) {
+            if(data.bitcoin) livePrices.bitcoin = data.bitcoin.usd;
+            if(data.ethereum) livePrices.ethereum = data.ethereum.usd;
+            if(data.solana) livePrices.solana = data.solana.usd;
+            updateSemuaTampilan(); 
+            
+            let htmlMini = ""; let htmlFull = "";
+            daftarKoin.forEach((koin, index) => {
+                if(data[koin.id]) {
+                    let hargaVal = currentCurrency === 'IDR' ? data[koin.id].usd * rateIDR : data[koin.id].usd;
+                    let formatHarga = currentCurrency === 'IDR' ? "Rp " + hargaVal.toLocaleString('id-ID',{maximumFractionDigits:0}) : "$" + (hargaVal < 1 ? hargaVal.toFixed(4) : hargaVal.toLocaleString('en-US', {minimumFractionDigits:2}));
+                    let persen = data[koin.id].usd_24h_change; let warna = persen >= 0 ? 'var(--green-up)' : 'var(--red-down)';
+                    
+                    let barisHtml = `
+                    <div class="list-item">
+                        <div class="item-left"><div class="coin-icon"><img src="https://cryptologos.cc/logos/${koin.img}.svg?v=025"></div><div><div class="coin-name">${koin.simbol}</div><div class="coin-symbol">${koin.nama}</div></div></div>
+                        <div class="item-right"><div class="price-text">${formatHarga}</div><div style="font-size:12px; color:${warna}; font-weight:600;">${persen>0?'+':''}${persen.toFixed(2)}%</div></div>
+                    </div>`;
+                    htmlFull += barisHtml; if(index < 4) htmlMini += barisHtml; 
+                }
+            });
+            document.getElementById('mini-market-list').innerHTML = htmlMini; document.getElementById('full-market-list').innerHTML = htmlFull;
+        }
+
+        // --- ORDER BOOK ANIMATION ---
+        function renderOrderBook() {
+            let asks = ''; let bids = '';
+            for(let i=0; i<6; i++) {
+                let pAsk = livePrices.bitcoin + (Math.random()*20); let vAsk = Math.random()*1.5;
+                asks += `<div style="display:flex; justify-content:space-between; color:var(--red-down); font-size:12px; margin-bottom:4px; font-weight:500;"><span>${pAsk.toFixed(2)}</span><span>${vAsk.toFixed(4)}</span></div>`;
+                
+                let pBid = livePrices.bitcoin - (Math.random()*20); let vBid = Math.random()*1.5;
+                bids += `<div style="display:flex; justify-content:space-between; color:var(--green-up); font-size:12px; margin-bottom:4px; font-weight:500;"><span>${pBid.toFixed(2)}</span><span>${vBid.toFixed(4)}</span></div>`;
+            }
+            document.getElementById('ob-asks').innerHTML = asks; document.getElementById('ob-bids').innerHTML = bids;
+        }
+
+        // --- QUEUE & HISTORY ---
         function renderRiwayat() {
             let container = document.getElementById('riwayat-container');
             if(riwayatTx.length === 0) { container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-sub); font-size:14px;">No recent transactions.</div>`; return; }
-            
             let html = "";
             for(let i = riwayatTx.length - 1; i >= 0; i--) {
-                let tx = riwayatTx[i];
-                let isPending = tx.status === 'Pending';
+                let tx = riwayatTx[i]; let isPending = tx.status === 'Pending';
                 let colorStatus = isPending ? 'var(--yellow-pending)' : (tx.isAdd ? 'var(--green-up)' : 'var(--text-main)');
-                let statusText = isPending ? 'Processing...' : 'Completed';
-                let iconColor = isPending ? 'var(--yellow-pending)' : 'var(--text-main)';
-
-                let displayAmount = tx.amountStr;
-                if(tx.amountUsd) displayAmount = (tx.isAdd?'+':'-') + formatUang(tx.amountUsd);
-
+                let displayAmount = tx.amountStr ? tx.amountStr : ((tx.isAdd?'+':'-') + formatUang(tx.amountUsd));
+                
                 html += `
                 <div class="list-item">
                     <div class="item-left">
-                        <div class="coin-icon" style="background: var(--bg-hover); color: ${iconColor};"><span class="material-symbols-outlined">${tx.icon}</span></div>
-                        <div><div class="coin-name">${tx.title}</div><div class="coin-symbol" style="color: ${colorStatus};">${statusText}</div></div>
+                        <div class="coin-icon" style="background: var(--bg-hover); color: ${isPending ? 'var(--yellow-pending)' : 'var(--text-main)'};"><span class="material-symbols-outlined">${tx.icon}</span></div>
+                        <div><div class="coin-name">${tx.title}</div><div class="coin-symbol" style="color: ${colorStatus};">${isPending ? 'Processing...' : 'Completed'}</div></div>
                     </div>
                     <div class="price-text" style="color: ${tx.isAdd ? 'var(--green-up)' : 'var(--text-main)'};">${displayAmount}</div>
                 </div>`;
@@ -462,19 +520,14 @@
         }
 
         function cekAntrianTx() {
-            let changed = false;
-            let now = Date.now();
+            let changed = false; let now = Date.now();
             riwayatTx.forEach(tx => {
                 if(tx.status === 'Pending' && now > tx.completeAt) {
-                    tx.status = 'Completed';
-                    changed = true;
-                    if(tx.action === 'depositFiat') saldoFiat += tx.rawInput;
-                    else if (tx.action === 'withdrawFiat') saldoFiat -= tx.rawInput;
-                    else if (tx.action === 'depositBtc') saldoBTC += tx.rawInput;
-                    else if (tx.action === 'withdrawBtc') saldoBTC -= tx.rawInput;
-                    else if (tx.action === 'convertFiatToBtc') { saldoFiat -= tx.rawInput; saldoBTC += tx.dpt; }
-                    else if (tx.action === 'convertBtcToFiat') { saldoBTC -= tx.rawInput; saldoFiat += tx.dpt; }
-                    
+                    tx.status = 'Completed'; changed = true;
+                    if(tx.action === 'depositFiat') wallets.fiat += tx.rawInput;
+                    else if (tx.action === 'withdrawFiat') wallets.fiat -= tx.rawInput;
+                    else if (tx.action === 'convertFiatToBtc') { wallets.fiat -= tx.rawInput; wallets.bitcoin += tx.dpt; }
+                    else if (tx.action === 'convertBtcToFiat') { wallets.bitcoin -= tx.rawInput; wallets.fiat += tx.dpt; }
                     munculToast(`${tx.title} Successful!`, "check_circle");
                 }
             });
@@ -482,185 +535,71 @@
         }
 
         function tambahAntrian(txObject) {
-            txObject.completeAt = Date.now() + 15000;
-            txObject.status = 'Pending';
-            riwayatTx.push(txObject);
-            updateSemuaTampilan(); simpanDatabase();
+            txObject.completeAt = Date.now() + 10000; txObject.status = 'Pending';
+            riwayatTx.push(txObject); updateSemuaTampilan(); simpanDatabase();
             munculToast("Request submitted. Queued for processing.", "schedule");
         }
 
-        // --- DINAMIS MODAL ---
-        function bukaModalBody(htmlKonten) {
-            document.getElementById('modalContentDynamic').innerHTML = htmlKonten;
-            document.getElementById('actionModal').style.display = 'flex';
-        }
+        // --- MODALS ---
+        function bukaModalBody(htmlKonten) { document.getElementById('modalContentDynamic').innerHTML = htmlKonten; document.getElementById('actionModal').style.display = 'flex'; }
         function tutupModal() { document.getElementById('actionModal').style.display = 'none'; }
 
-        // MODAL DEPOSIT/WITHDRAW/CONVERT
         function bukaModalDeposit() {
-            let html = `
+            bukaModalBody(`
                 <div class="modal-title">Deposit</div>
-                <div class="modal-subtitle">Choose asset to deposit</div>
+                <div class="modal-subtitle">Add funds to your account</div>
                 <div class="input-group">
-                    <select class="select-custom" id="depoAsset" onchange="gantiAssetDeposit()">
-                        <option value="fiat">Fiat (${currentCurrency})</option>
-                        <option value="btc">Bitcoin (BTC)</option>
+                    <select class="select-custom" id="depoMethod">
+                        <option value="Bank Transfer">Bank Transfer / VA</option><option value="Credit Card">Credit Card</option><option value="PayPal">PayPal</option>
                     </select>
                 </div>
-                
-                <div id="areaFiatDepo">
-                    <div class="input-group">
-                        <select class="select-custom" id="depoMethod">
-                            <option value="Bank Transfer">Bank Transfer / VA</option>
-                            <option value="Credit Card">Credit / Debit Card</option>
-                            <option value="PayPal">PayPal</option>
-                            <option value="OVO/Dana">OVO / Dana / GoPay</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <input type="number" class="modal-input" id="depoAmtFiat" placeholder="Enter amount..." step="any">
-                        <div style="color:var(--text-sub); font-weight:600;">${currentCurrency}</div>
-                    </div>
-                </div>
-
-                <div id="areaBtcDepo" style="display:none;">
-                    <div style="background:var(--bg-main); padding:20px; border-radius:12px; text-align:center; margin-bottom:16px;">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa&bgcolor=ffffff" style="border-radius:8px; margin-bottom:10px;">
-                        <div style="font-size:12px; color:var(--text-sub); word-break:break-all;">1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa</div>
-                    </div>
-                    <p style="font-size:12px; color:var(--text-sub); text-align:center;">Send only BTC to this address via Bitcoin Network.</p>
-                </div>
-
+                <div class="input-group"><input type="number" class="modal-input" id="depoAmtFiat" placeholder="Enter amount..."><div style="color:var(--text-sub); font-weight:600;">${currentCurrency}</div></div>
                 <button class="btn-confirm" onclick="submitDeposit()">Submit Deposit</button>
                 <button class="btn-close" onclick="tutupModal()">Cancel</button>
-            `;
-            bukaModalBody(html);
-        }
-
-        window.gantiAssetDeposit = function() {
-            let val = document.getElementById('depoAsset').value;
-            document.getElementById('areaFiatDepo').style.display = val==='fiat'?'block':'none';
-            document.getElementById('areaBtcDepo').style.display = val==='btc'?'block':'none';
+            `);
         }
 
         window.submitDeposit = function() {
-            let val = document.getElementById('depoAsset').value;
-            if(val === 'fiat') {
-                let amt = parseFloat(document.getElementById('depoAmtFiat').value);
-                if(isNaN(amt) || amt <= 0) return munculToast("Invalid amount", "error");
-                let meth = document.getElementById('depoMethod').value;
-                let amtUsd = currentCurrency === 'IDR' ? amt / rateIDR : amt;
-                
-                tambahAntrian({ action: 'depositFiat', icon: 'payments', title: `Deposit via ${meth}`, amountUsd: amtUsd, isAdd: true, rawInput: amtUsd });
-                tutupModal();
-            } else {
-                munculToast("BTC Address copied to clipboard. Waiting for network confirmation.", "content_copy");
-                tutupModal();
-            }
+            let amt = parseFloat(document.getElementById('depoAmtFiat').value);
+            if(isNaN(amt) || amt <= 0) return munculToast("Invalid amount", "error");
+            let meth = document.getElementById('depoMethod').value;
+            let amtUsd = currentCurrency === 'IDR' ? amt / rateIDR : amt;
+            tambahAntrian({ action: 'depositFiat', icon: 'payments', title: `Deposit via ${meth}`, amountUsd: amtUsd, isAdd: true, rawInput: amtUsd });
+            tutupModal();
         }
 
         function bukaModalWithdraw() {
-            let html = `
-                <div class="modal-title">Withdraw</div>
-                <div class="modal-subtitle">Choose asset to withdraw</div>
-                <div class="input-group">
-                    <select class="select-custom" id="wdAsset" onchange="gantiAssetWd()">
-                        <option value="fiat">Fiat (${currentCurrency}) - Avail: ${formatUang(saldoFiat)}</option>
-                        <option value="btc">Bitcoin (BTC) - Avail: ${saldoBTC.toFixed(6)}</option>
-                    </select>
-                </div>
-                
-                <div id="areaFiatWd">
-                    <div class="input-group">
-                        <select class="select-custom" id="wdMethodFiat">
-                            <option value="PayPal">Withdraw to PayPal</option>
-                            <option value="Bank Account">Withdraw to Bank Account</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <input type="text" class="modal-input" id="wdDestFiat" placeholder="Enter Account/Email...">
-                    </div>
-                    <div class="input-group">
-                        <input type="number" class="modal-input" id="wdAmtFiat" placeholder="Amount to withdraw..." step="any">
-                        <div style="color:var(--text-sub); font-weight:600;">${currentCurrency}</div>
-                    </div>
-                </div>
-
-                <div id="areaBtcWd" style="display:none;">
-                    <div class="input-group">
-                        <select class="select-custom" id="wdNetworkBtc">
-                            <option value="BTC Network">Bitcoin Network</option>
-                            <option value="BEP20">BSC (BEP20)</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <input type="text" class="modal-input" id="wdDestBtc" placeholder="Paste BTC Address...">
-                    </div>
-                    <div class="input-group">
-                        <input type="number" class="modal-input" id="wdAmtBtc" placeholder="Amount..." step="any">
-                        <div style="color:var(--text-sub); font-weight:600;">BTC</div>
-                    </div>
-                </div>
-
+            bukaModalBody(`
+                <div class="modal-title">Withdraw Fiat</div>
+                <div class="modal-subtitle">Avail: ${formatUang(wallets.fiat)}</div>
+                <div class="input-group"><select class="select-custom" id="wdMethodFiat"><option value="Bank Account">To Bank Account</option><option value="PayPal">To PayPal</option></select></div>
+                <div class="input-group"><input type="text" class="modal-input" placeholder="Enter Account/Email..."></div>
+                <div class="input-group"><input type="number" class="modal-input" id="wdAmtFiat" placeholder="Amount..."><div style="color:var(--text-sub); font-weight:600;">${currentCurrency}</div></div>
                 <button class="btn-confirm" onclick="submitWithdraw()">Request Withdraw</button>
                 <button class="btn-close" onclick="tutupModal()">Cancel</button>
-            `;
-            bukaModalBody(html);
-        }
-
-        window.gantiAssetWd = function() {
-            let val = document.getElementById('wdAsset').value;
-            document.getElementById('areaFiatWd').style.display = val==='fiat'?'block':'none';
-            document.getElementById('areaBtcWd').style.display = val==='btc'?'block':'none';
+            `);
         }
 
         window.submitWithdraw = function() {
-            let val = document.getElementById('wdAsset').value;
-            if(val === 'fiat') {
-                let amt = parseFloat(document.getElementById('wdAmtFiat').value);
-                let dest = document.getElementById('wdDestFiat').value;
-                let meth = document.getElementById('wdMethodFiat').value;
-                let amtUsd = currentCurrency === 'IDR' ? amt / rateIDR : amt;
-
-                if(isNaN(amt) || amt <= 0 || dest.length < 5) return munculToast("Invalid input/destination", "error");
-                if(amtUsd > saldoFiat) return munculToast("Insufficient Fiat Balance!", "error");
-
-                tambahAntrian({ action: 'withdrawFiat', icon: 'account_balance', title: `WD to ${meth}`, amountUsd: amtUsd, isAdd: false, rawInput: amtUsd });
-                tutupModal();
-            } else {
-                let amt = parseFloat(document.getElementById('wdAmtBtc').value);
-                let dest = document.getElementById('wdDestBtc').value;
-                let net = document.getElementById('wdNetworkBtc').value;
-
-                if(isNaN(amt) || amt <= 0 || dest.length < 10) return munculToast("Invalid BTC Address or Amount", "error");
-                if(amt > saldoBTC) return munculToast("Insufficient BTC Balance!", "error");
-
-                tambahAntrian({ action: 'withdrawBtc', icon: 'send', title: `WD BTC (${net})`, amountStr: `-${amt} BTC`, isAdd: false, rawInput: amt });
-                tutupModal();
-            }
+            let amt = parseFloat(document.getElementById('wdAmtFiat').value);
+            let meth = document.getElementById('wdMethodFiat').value;
+            let amtUsd = currentCurrency === 'IDR' ? amt / rateIDR : amt;
+            if(isNaN(amt) || amt <= 0) return munculToast("Invalid input", "error");
+            if(amtUsd > wallets.fiat) return munculToast("Insufficient Fiat Balance!", "error");
+            tambahAntrian({ action: 'withdrawFiat', icon: 'account_balance', title: `WD to ${meth}`, amountUsd: amtUsd, isAdd: false, rawInput: amtUsd });
+            tutupModal();
         }
 
-        function bukaModalTrade() {
-            let html = `
+        function bukaModalTrade(mode) {
+            bukaModalBody(`
                 <div class="modal-title">Convert Crypto</div>
-                <div class="modal-subtitle">Direct conversion without market fees.</div>
-                
-                <div class="input-group">
-                    <select class="select-custom" id="convDirection">
-                        <option value="buy">Fiat (${currentCurrency}) ➔ BTC</option>
-                        <option value="sell">BTC ➔ Fiat (${currentCurrency})</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <input type="number" class="modal-input" id="convAmt" placeholder="Enter amount to spend..." step="any">
-                </div>
-                <div style="text-align:right; font-size:12px; color:var(--accent-yellow); margin-bottom:20px;">1 BTC = ${formatUang(btcPriceReal)}</div>
-
+                <div class="modal-subtitle">Direct conversion (Zero Fee)</div>
+                <div class="input-group"><select class="select-custom" id="convDirection"><option value="buy">Fiat (${currentCurrency}) ➔ BTC</option><option value="sell">BTC ➔ Fiat (${currentCurrency})</option></select></div>
+                <div class="input-group"><input type="number" class="modal-input" id="convAmt" placeholder="Enter amount to spend..."></div>
+                <div style="text-align:right; font-size:12px; color:var(--accent-yellow); margin-bottom:20px;">1 BTC = ${formatUang(livePrices.bitcoin)}</div>
                 <button class="btn-confirm" onclick="submitConvert()">Convert Now</button>
                 <button class="btn-close" onclick="tutupModal()">Cancel</button>
-            `;
-            bukaModalBody(html);
+            `);
         }
 
         window.submitConvert = function() {
@@ -670,72 +609,39 @@
 
             if(dir === 'buy') {
                 let amtUsd = currentCurrency === 'IDR' ? amt / rateIDR : amt;
-                if(amtUsd > saldoFiat) return munculToast("Insufficient Fiat Balance!", "error");
-                let dptBtc = amtUsd / btcPriceReal;
-                
-                tambahAntrian({ action: 'convertFiatToBtc', icon: 'currency_exchange', title: `Convert to BTC`, amountStr: `+${dptBtc.toFixed(6)} BTC`, isAdd: true, rawInput: amtUsd, dpt: dptBtc });
+                if(amtUsd > wallets.fiat) return munculToast("Insufficient Fiat Balance!", "error");
+                tambahAntrian({ action: 'convertFiatToBtc', icon: 'currency_exchange', title: `Convert to BTC`, amountStr: `+${(amtUsd/livePrices.bitcoin).toFixed(6)} BTC`, isAdd: true, rawInput: amtUsd, dpt: (amtUsd/livePrices.bitcoin) });
                 tutupModal();
             } else {
-                if(amt > saldoBTC) return munculToast("Insufficient BTC Balance!", "error");
-                let dptUsd = amt * btcPriceReal;
-                
-                tambahAntrian({ action: 'convertBtcToFiat', icon: 'currency_exchange', title: `Convert to Fiat`, amountUsd: dptUsd, isAdd: true, rawInput: amt, dpt: dptUsd });
+                if(amt > wallets.bitcoin) return munculToast("Insufficient BTC Balance!", "error");
+                tambahAntrian({ action: 'convertBtcToFiat', icon: 'currency_exchange', title: `Convert to Fiat`, amountUsd: (amt*livePrices.bitcoin), isAdd: true, rawInput: amt, dpt: (amt*livePrices.bitcoin) });
                 tutupModal();
             }
         }
 
         function bukaModalProfil(tipe) {
             if(tipe === 'Currency') {
-                let html = `
-                    <div class="modal-title">Currency Settings</div>
-                    <div class="modal-subtitle">Choose your display fiat currency.</div>
-                    <div class="input-group">
-                        <select class="select-custom" id="selCurr">
-                            <option value="USD" ${currentCurrency==='USD'?'selected':''}>US Dollar (USD)</option>
-                            <option value="IDR" ${currentCurrency==='IDR'?'selected':''}>Indonesian Rupiah (IDR)</option>
-                        </select>
-                    </div>
-                    <button class="btn-confirm" onclick="simpanCurrency()">Save</button>
-                    <button class="btn-close" onclick="tutupModal()">Cancel</button>
-                `;
-                bukaModalBody(html);
-            } 
-            else if (tipe === 'Passcode') {
-                let html = `
-                    <div class="modal-title">Set App Passcode</div>
-                    <div class="modal-subtitle">Enhance your app security.</div>
-                    <div class="input-group"><input type="password" class="modal-input" placeholder="Enter 6-digit PIN" maxlength="6"></div>
-                    <div class="input-group"><input type="password" class="modal-input" placeholder="Confirm PIN" maxlength="6"></div>
-                    <button class="btn-confirm" onclick="munculToast('Passcode successfully set!', 'lock'); tutupModal();">Set Passcode</button>
-                    <button class="btn-close" onclick="tutupModal()">Cancel</button>
-                `;
-                bukaModalBody(html);
-            }
-            else if (tipe === 'Payment') {
-                let html = `
-                    <div class="modal-title">Add Payment Method</div>
-                    <div class="input-group">
-                        <select class="select-custom">
-                            <option>PayPal Account</option><option>Bank Account (BCA/Mandiri)</option>
-                        </select>
-                    </div>
-                    <div class="input-group"><input type="text" class="modal-input" placeholder="Account Name"></div>
-                    <div class="input-group"><input type="text" class="modal-input" placeholder="Account Number / Email"></div>
-                    <button class="btn-confirm" onclick="munculToast('Payment method linked successfully.', 'check_circle'); tutupModal();">Link Account</button>
-                    <button class="btn-close" onclick="tutupModal()">Cancel</button>
-                `;
-                bukaModalBody(html);
+                bukaModalBody(`<div class="modal-title">Currency Settings</div><div class="input-group"><select class="select-custom" id="selCurr"><option value="USD" ${currentCurrency==='USD'?'selected':''}>US Dollar (USD)</option><option value="IDR" ${currentCurrency==='IDR'?'selected':''}>Indonesian Rupiah (IDR)</option></select></div><button class="btn-confirm" onclick="simpanCurrency()">Save</button><button class="btn-close" onclick="tutupModal()">Cancel</button>`);
+            } else if (tipe === 'Passcode') {
+                bukaModalBody(`<div class="modal-title">Set App PIN</div><div class="modal-subtitle">Setup 6-digit lock screen PIN.</div><div class="input-group"><input type="password" class="modal-input" id="setupPinInput" placeholder="Enter new 6-digit PIN" maxlength="6"></div><button class="btn-confirm" onclick="simpanPinBaru()">Save PIN</button><button class="btn-close" onclick="tutupModal()">Cancel</button>`);
+            } else if (tipe === 'Payment') {
+                bukaModalBody(`<div class="modal-title">Payment Methods</div><div class="modal-subtitle">No methods linked. Prototype only.</div><button class="btn-close" onclick="tutupModal()">Close</button>`);
             }
         }
 
         window.simpanCurrency = function() {
             currentCurrency = document.getElementById('selCurr').value;
-            simpanDatabase(); updateSemuaTampilan(); ambilDataPasar(); 
-            munculToast(`Currency changed to ${currentCurrency}`, "language");
-            tutupModal();
+            simpanDatabase(); updateSemuaTampilan(); ambilDataPasar(); munculToast(`Currency changed to ${currentCurrency}`, "language"); tutupModal();
         }
 
-        setInterval(ambilDataPasar, 30000);
+        window.simpanPinBaru = function() {
+            let pin = document.getElementById('setupPinInput').value;
+            if(pin.length === 6) {
+                savedPin = pin; localStorage.setItem("bayu_pin", pin);
+                document.getElementById('pin-status-icon').style.color = "var(--green-up)";
+                munculToast('PIN successfully activated!', 'lock'); tutupModal();
+            } else { munculToast('PIN must be 6 digits', 'error'); }
+        }
     </script>
 </body>
 </html>
