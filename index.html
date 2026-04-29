@@ -5,8 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Crypto Exchange Pro</title>
     
+    <script>
+        if (localStorage.getItem("bayu_isLoggedIn") !== "true") {
+            window.location.replace("login.html");
+        }
+    </script>
+
     <link rel="manifest" href='data:application/json;charset=utf-8,%7B%22name%22%3A%22Crypto%20Pro%22%2C%22short_name%22%3A%22CryptoPro%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230b0e11%22%2C%22theme_color%22%3A%22%230b0e11%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcryptologos.cc%2Flogos%2Fbitcoin-btc-logo.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D'>
     <meta name="theme-color" content="#0b0e11">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
@@ -32,11 +39,15 @@
         @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative; }
+        .app-title { position: absolute; left: 50%; transform: translateX(-50%); font-size: 16px; font-weight: 600; color: var(--text-main); letter-spacing: 0.5px; }
         .user-avatar { width: 34px; height: 34px; background-color: var(--accent-yellow); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; color: #000; cursor:pointer; overflow: hidden; background-size: cover; background-position: center;}
+        .icon-btn { color: var(--text-sub); cursor: pointer; position: relative; }
+        .badge-dot { position: absolute; top: 0; right: 0; width: 8px; height: 8px; background: var(--red-down); border-radius: 50%; border: 2px solid var(--bg-main); }
         
         .balance-card { padding: 0 0 24px 0; }
         .balance-header { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-sub); margin-bottom: 8px; font-weight: 500;}
         .balance-amount { font-size: 32px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: baseline; gap: 4px; word-break: break-all;}
+        .badge-pro { background: linear-gradient(90deg, #fcd535, #f0b90b); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; margin-left: 8px;}
         
         .actions-row { display: flex; justify-content: space-between; margin-bottom: 32px; }
         .action-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; flex: 1;}
@@ -86,9 +97,6 @@
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
 
         #avatar-upload { display: none; }
-        
-        /* APP TITLE STYLE */
-        .app-title { position: absolute; left: 50%; transform: translateX(-50%); font-size: 16px; font-weight: 600; color: var(--text-main); letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
@@ -214,6 +222,9 @@
                     <div class="menu-row" onclick="bukaModalProfil('Passcode')"><span class="material-symbols-outlined menu-icon">lock</span><span class="menu-text">Security (App PIN)</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
                     <div class="menu-row" onclick="bukaModalProfil('Payment')"><span class="material-symbols-outlined menu-icon">account_balance</span><span class="menu-text">Payment Methods</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
                     <div class="menu-row" onclick="bukaModalProfil('Currency')"><span class="material-symbols-outlined menu-icon">language</span><span class="menu-text">Currency Settings (<span id="txt-curr-setting">USD</span>)</span><span class="material-symbols-outlined menu-arrow">chevron_right</span></div>
+                    
+                    <div class="menu-row" onclick="logoutApp()"><span class="material-symbols-outlined menu-icon" style="color: var(--accent-yellow);">logout</span><span class="menu-text" style="color: var(--accent-yellow);">Log Out</span></div>
+
                     <div class="menu-row" onclick="resetSaldo()"><span class="material-symbols-outlined menu-icon" style="color: var(--red-down);">delete_forever</span><span class="menu-text" style="color: var(--red-down);">Reset Account Data</span></div>
                 </div>
             </div>
@@ -321,8 +332,20 @@
 
         function resetSaldo() { 
             if(confirm("Mas Bayu, hapus semua data dan kembali ke awal?")) { 
-                localStorage.clear(); window.location.reload(); 
+                localStorage.removeItem("bayu_fiat");
+                localStorage.removeItem("bayu_btc");
+                localStorage.removeItem("bayu_currency");
+                localStorage.removeItem("bayu_history");
+                localStorage.removeItem("bayu_pic");
+                window.location.reload(); 
             } 
+        }
+
+        function logoutApp() {
+            if(confirm("Are you sure you want to log out?")) {
+                localStorage.removeItem("bayu_isLoggedIn");
+                window.location.replace("login.html");
+            }
         }
 
         function gantiFotoProfil(event) {
@@ -361,7 +384,7 @@
             renderRiwayat();
         }
 
-        // FUNGSI PROSES DATA (MENGHINDARI ERROR LOADING)
+        // FUNGSI PROSES DATA DENGAN BACKUP ANTI-ERROR
         function renderDataPasar(data) {
             if(data.bitcoin) btcPriceReal = data.bitcoin.usd;
             updateSemuaTampilan(); 
@@ -387,7 +410,6 @@
             document.getElementById('full-market-list').innerHTML = htmlFull;
         }
 
-        // FUNGSI FETCH DENGAN BACKUP (ANTI-LOADING BUG)
         async function ambilDataPasar() {
             try {
                 let ids = daftarKoin.map(k => k.id).join(',');
@@ -396,23 +418,15 @@
                 const data = await res.json();
                 renderDataPasar(data);
             } catch (e) { 
-                console.log("Loading dari API gagal, beralih ke data dummy backup.");
-                // Data Dummy Anti-Error
+                console.log("Loading dari API gagal, beralih ke data dummy.");
                 const dummy = {
-                    "bitcoin": { usd: 69200.50, usd_24h_change: 2.45 },
-                    "ethereum": { usd: 3450.10, usd_24h_change: -1.2 },
-                    "tether": { usd: 1.00, usd_24h_change: 0.01 },
-                    "solana": { usd: 145.20, usd_24h_change: 5.6 },
-                    "binancecoin": { usd: 590.00, usd_24h_change: 1.1 },
-                    "ripple": { usd: 0.58, usd_24h_change: -0.5 },
-                    "cardano": { usd: 0.45, usd_24h_change: 0.8 },
-                    "dogecoin": { usd: 0.15, usd_24h_change: 8.4 },
-                    "polkadot": { usd: 7.20, usd_24h_change: -2.1 },
-                    "avalanche-2": { usd: 45.60, usd_24h_change: 3.2 },
-                    "chainlink": { usd: 18.50, usd_24h_change: 1.5 },
-                    "matic-network": { usd: 0.95, usd_24h_change: -1.1 },
-                    "tron": { usd: 0.12, usd_24h_change: 0.4 },
-                    "uniswap": { usd: 7.80, usd_24h_change: -3.5 },
+                    "bitcoin": { usd: 69200.50, usd_24h_change: 2.45 }, "ethereum": { usd: 3450.10, usd_24h_change: -1.2 },
+                    "tether": { usd: 1.00, usd_24h_change: 0.01 }, "solana": { usd: 145.20, usd_24h_change: 5.6 },
+                    "binancecoin": { usd: 590.00, usd_24h_change: 1.1 }, "ripple": { usd: 0.58, usd_24h_change: -0.5 },
+                    "cardano": { usd: 0.45, usd_24h_change: 0.8 }, "dogecoin": { usd: 0.15, usd_24h_change: 8.4 },
+                    "polkadot": { usd: 7.20, usd_24h_change: -2.1 }, "avalanche-2": { usd: 45.60, usd_24h_change: 3.2 },
+                    "chainlink": { usd: 18.50, usd_24h_change: 1.5 }, "matic-network": { usd: 0.95, usd_24h_change: -1.1 },
+                    "tron": { usd: 0.12, usd_24h_change: 0.4 }, "uniswap": { usd: 7.80, usd_24h_change: -3.5 },
                     "cosmos": { usd: 8.90, usd_24h_change: 1.2 }
                 };
                 renderDataPasar(dummy);
@@ -626,7 +640,7 @@
             }
         }
 
-        function bukaModalTrade(mode) {
+        function bukaModalTrade() {
             let html = `
                 <div class="modal-title">Convert Crypto</div>
                 <div class="modal-subtitle">Direct conversion without market fees.</div>
